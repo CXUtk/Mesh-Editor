@@ -28,7 +28,7 @@ namespace DCEL {
 
 
         std::vector<DrawTriangle> GetDrawTriangles() const;
-
+        std::vector<Segment> GetDrawWireFrames() const;
 
     private:
         // Create new elements

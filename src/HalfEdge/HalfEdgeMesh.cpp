@@ -76,6 +76,14 @@ namespace DCEL {
         return drawTriangles;
     }
 
+    std::vector<Segment> HalfEdgeMesh::GetDrawWireFrames() const {
+        std::vector<Segment> lines;
+        for (auto& edge : _edges) {
+            lines.push_back(Segment(edge.HalfEdge()->From()->Position, edge.HalfEdge()->To()->Position));
+        }
+        return lines;
+    }
+
     PFace DCEL::HalfEdgeMesh::newFace() {
         _totF++;
         _faces.push_back(Face(_totF));

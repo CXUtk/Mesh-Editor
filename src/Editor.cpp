@@ -25,6 +25,7 @@ void Editor::init() {
     _mesh = std::make_shared<DCEL::HalfEdgeMesh>();
     _mesh->Build(loader.GetMesh());
     _drawTriangles = _mesh->GetDrawTriangles();
+    _drawWireFrames = _mesh->GetDrawWireFrames();
     recalculateMesh();
     //_mesh->upSample();
     //_mesh->upSample();
@@ -151,7 +152,7 @@ void Editor::update() {
 
 
 
-    float r = 5.f;
+    float r = 3.f;
     float r2 = std::cos(_curOrbitParameter.y);
     _camera->SetEyePos(r * glm::vec3(-r2 * std::sin(_curOrbitParameter.x),
         -std::sin(_curOrbitParameter.y), r2 * std::cos(_curOrbitParameter.x)));
@@ -167,10 +168,10 @@ void Editor::draw() {
         glDepthFunc(GL_LESS);
         _renderer->drawLightedTriangles(_drawTriangles, glm::vec3(0.8), glm::vec3(0, 0, 1), _camera->GetEyePos());
 
-        //glEnable(GL_POLYGON_OFFSET_LINE);
-        //glPolygonOffset(1.0f, 1.0f);
-        //_renderer->drawLines(_drawWireFrames, glm::vec3(1), 1);
-        //glDisable(GL_POLYGON_OFFSET_LINE);
+        glEnable(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(1.0f, 1.0f);
+        _renderer->drawLines(_drawWireFrames, glm::vec3(1), 1);
+        glDisable(GL_POLYGON_OFFSET_LINE);
 
         glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
