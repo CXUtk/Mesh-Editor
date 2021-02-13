@@ -1,4 +1,5 @@
 ﻿#include "ObjLoader.h"
+#include <map>
 char ObjLoader::lineBuffer[MAX_BUFFER];
 
 
@@ -54,28 +55,33 @@ bool readInt(const char* S, int& idx, int& num) {
 }
 
 
-Mesh ObjLoader::getMesh() const {
-    Mesh mesh;
-    mesh.V = Vertices;
-    mesh.F = Triangles;
+TriangleMesh ObjLoader::GetMesh() const {
+    TriangleMesh mesh;
+    std::vector<VertexData> vertices;
+    for (auto& v : Vertices) {
+        VertexData vdata(v, glm::vec3(0), glm::vec2(0));
+        vertices.push_back(vdata);
+    }
+    mesh.SetVertices(vertices);
+    mesh.SetFaces(Triangles);
     return mesh;
 }
 
-std::vector<DrawTriangle> ObjLoader::GetDrawTriangles() const {
-    std::vector<DrawTriangle> triangles;
-    for (auto face : Triangles) {
-        DrawTriangle tri;
-        DrawVertex v1[3];
-        for (int i = 0; i < 3; i++) {
-            v1[i].pos = Vertices[face.v[i]];
-            v1[i].normal = Normals[face.v[i]];
-            tri.V[i] = v1[i];
-        }
-
-        triangles.push_back(tri);
-    }
-    return triangles;
-}
+//std::vector<DrawTriangle> ObjLoader::GetDrawTriangles() const {
+//    std::vector<DrawTriangle> triangles;
+//    for (auto face : Triangles) {
+//        DrawTriangle tri;
+//        DrawVertex v1[3];
+//        for (int i = 0; i < 3; i++) {
+//            v1[i].pos = Vertices[face.v[i]];
+//            v1[i].normal = Normals[face.v[i]];
+//            tri.V[i] = v1[i];
+//        }
+//
+//        triangles.push_back(tri);
+//    }
+//    return triangles;
+//}
 
 
 
@@ -84,8 +90,6 @@ void ObjLoader::process() {
     static char faceV[105];
     sscanf(lineBuffer + _ptr, "%s", start);
     _ptr += strlen(start);
-
-
 
     if (!strcmp(start, "v")) {
         double x, y, z;
@@ -113,7 +117,7 @@ void ObjLoader::process() {
                 id++;
                 if (!b || faceV[id - 1] != '/')break;
             }
-            vertices.push_back({ vIDMap[vd[0]], vIDMap[vd[1]], vIDMap[vd[2]] });
+            vertices.push_back({ vIDMap[vd[0]] - 1, vIDMap[vd[1]] - 1, vIDMap[vd[2]] - 1 });
             //int i = 0;
             //int num = 0;
             //bool neg = false;
@@ -142,7 +146,7 @@ void ObjLoader::process() {
         };
         int sz = vertices.size();
         if (sz == 3) {
-            Triangles.push_back(ObjTriangle(vertices));
+            Triangles.push_back(TriangleFaceIndex(vertices));
         }
         else {
             std::cerr << "Invalid obj file format" << std::endl;

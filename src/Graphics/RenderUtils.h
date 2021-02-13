@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <glm/glm.hpp>
+#include "Structures/VertexData.h"
 struct Segment {
     glm::vec3 A, B;
     Segment() = default;
@@ -7,10 +8,6 @@ struct Segment {
 };
 
 
-struct DrawVertex {
-    glm::vec3 pos, normal;
-};
-
 struct DrawTriangle {
-    DrawVertex V[3];
+    VertexData V[3];
 };

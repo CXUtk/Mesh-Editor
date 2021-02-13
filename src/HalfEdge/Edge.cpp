@@ -1,4 +1,6 @@
 ﻿#include "Edge.h"
+DCEL::Edge::Edge() {
+}
 DCEL::Edge::Edge(int id) : DCELBase(id), _halfEdge(nullptr), _isNew(false) {
 }
 

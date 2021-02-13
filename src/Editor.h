@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Graphics/Renderer.h"
-#include "Structures/HalfEdgeMesh.h"
+#include "HalfEdge/HalfEdgeMesh.h"
 #include "Structures/Camera.h"
 #include "Input/InputControl.h"
 #include "UI/GUIManager.h"

@@ -1,5 +1,8 @@
 ﻿#include "Face.h"
 
+DCEL::Face::Face() {
+}
+
 DCEL::Face::Face(int id) : DCELBase(id) {
     _halfEdge = nullptr;
 }

@@ -128,18 +128,20 @@ void Renderer::init_lineBuffer() {
 }
 
 void Renderer::init_triangleBuffer() {
-    // 画线的顶点缓存
+    // 画三角形面的顶点缓存
     glGenVertexArrays(1, &_vaoTriangle);
     glGenBuffers(1, &_vboTriangle);
 
     glBindVertexArray(_vaoTriangle);
     glBindBuffer(GL_ARRAY_BUFFER, _vboTriangle);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(DrawVertex) * BUFFER_SIZE_T, nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * BUFFER_SIZE_T, nullptr, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(DrawVertex), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(DrawVertex), (void*)(sizeof(glm::vec3)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(sizeof(glm::vec3)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(sizeof(glm::vec3) * 2));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

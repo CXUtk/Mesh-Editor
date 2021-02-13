@@ -1,6 +1,5 @@
 ﻿#include "Editor.h"
 #include "Loaders/ObjLoader.h"
-#include "Test/TestMesh.h"
 #include <cstdio>
 #include <algorithm>
 
@@ -22,9 +21,10 @@ void Editor::init() {
 
     _renderer = std::make_shared<Renderer>();
 
-    loader.load("Resources/Scenes/bunny.obj");
+    loader.load("Resources/Scenes/gd32.obj");
     _mesh = std::make_shared<DCEL::HalfEdgeMesh>();
-    _mesh->build(loader.getMesh());
+    _mesh->Build(loader.GetMesh());
+    _drawTriangles = _mesh->GetDrawTriangles();
     recalculateMesh();
     //_mesh->upSample();
     //_mesh->upSample();
@@ -134,20 +134,20 @@ void Editor::update() {
         _oldOrbitParameter = _curOrbitParameter;
     }
 
-    if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
-        _mesh->upSample();
-        recalculateMesh();
-    }
+    //if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
+    //    _mesh->upSample();
+    //    recalculateMesh();
+    //}
 
-    if (!_input->getWasKeyDown('Z') && _input->getIsKeyDown('Z')) {
-        _mesh->reSample();
-        recalculateMesh();
-    }
+    //if (!_input->getWasKeyDown('Z') && _input->getIsKeyDown('Z')) {
+    //    _mesh->reSample();
+    //    recalculateMesh();
+    //}
 
-    if (!_input->getWasKeyDown('C') && _input->getIsKeyDown('C')) {
-        _mesh->downSample(300);
-        recalculateMesh();
-    }
+    //if (!_input->getWasKeyDown('C') && _input->getIsKeyDown('C')) {
+    //    _mesh->downSample(300);
+    //    recalculateMesh();
+    //}
 
 
 
@@ -158,7 +158,6 @@ void Editor::update() {
 }
 
 void Editor::draw() {
-    auto tEdges = _mesh->getEdgesMarked();
     _renderer->begin(_camera->getProjectTransform(), _camera->getViewTransform());
     {
         glEnable(GL_DEPTH_TEST);
@@ -168,9 +167,10 @@ void Editor::draw() {
         glDepthFunc(GL_LESS);
         _renderer->drawLightedTriangles(_drawTriangles, glm::vec3(0.8), glm::vec3(0, 0, 1), _camera->GetEyePos());
 
-        glDepthFunc(GL_LEQUAL);
+        //glEnable(GL_POLYGON_OFFSET_LINE);
+        //glPolygonOffset(1.0f, 1.0f);
         //_renderer->drawLines(_drawWireFrames, glm::vec3(1), 1);
-
+        //glDisable(GL_POLYGON_OFFSET_LINE);
 
         glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
@@ -184,39 +184,39 @@ void Editor::draw() {
     pos.y /= _height;
     pos.y = 1 - pos.y;
 
-    auto dir = _camera->getDir(pos.x, pos.y);
-    auto ray = Ray(_camera->GetEyePos(), dir);
-    IntersectionInfo info;
-    if (_mesh->testHitTriangle(ray, info)) {
-        if (info.isFace) {
-            std::vector<DrawTriangle> vs;
-            vs.push_back(_mesh->getDrawFace(info.face));
-            _renderer->drawTriangles(vs, glm::vec3(1, 0, 0));
-        }
-        else {
-            std::vector<Segment> vs;
-            vs.push_back(_mesh->getDrawEdge(info.edge));
-            _renderer->drawLines(vs, glm::vec3(1, 1, 0), 2);
-            // printf("ID: %d, from: %f, to: %f\n", info.edge->id, info.edge->halfEdge->from->pos.x, info.edge->halfEdge->to->pos.x);
-        }
+    //auto dir = _camera->getDir(pos.x, pos.y);
+    //auto ray = Ray(_camera->GetEyePos(), dir);
+    //IntersectionInfo info;
+    //if (_mesh->testHitTriangle(ray, info)) {
+    //    if (info.isFace) {
+    //        std::vector<DrawTriangle> vs;
+    //        vs.push_back(_mesh->getDrawFace(info.face));
+    //        _renderer->drawTriangles(vs, glm::vec3(1, 0, 0));
+    //    }
+    //    else {
+    //        std::vector<Segment> vs;
+    //        vs.push_back(_mesh->getDrawEdge(info.edge));
+    //        _renderer->drawLines(vs, glm::vec3(1, 1, 0), 2);
+    //        // printf("ID: %d, from: %f, to: %f\n", info.edge->id, info.edge->halfEdge->from->pos.x, info.edge->halfEdge->to->pos.x);
+    //    }
 
-        // 右键可以坍缩边
-        if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown() && !info.isFace) {
-            _mesh->collapseEdge(info.edge->halfEdge, (info.edge->halfEdge->from->pos + info.edge->halfEdge->to->pos) * 0.5f);
-            // printf("# Faces: %d\n# Vertices: %d\n# Edges: %d\n", _mesh->getFaceCount(), _mesh->getVertexCount(), _mesh->getEdgeCount());
-            //_mesh->bulkCheck();
-            recalculateMesh();
+    //    // 右键可以坍缩边
+    //    if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown() && !info.isFace) {
+    //        _mesh->collapseEdge(info.edge->halfEdge, (info.edge->halfEdge->from->pos + info.edge->halfEdge->to->pos) * 0.5f);
+    //        // printf("# Faces: %d\n# Vertices: %d\n# Edges: %d\n", _mesh->getFaceCount(), _mesh->getVertexCount(), _mesh->getEdgeCount());
+    //        //_mesh->bulkCheck();
+    //        recalculateMesh();
 
-        }
-    }
+    //    }
+    //}
 
 
     _input->endInput();
 }
 
 void Editor::recalculateMesh() {
-    _mesh->recalculate();
-    _drawTriangles = _mesh->getTriangles();
-    _drawWireFrames = _mesh->getEdges();
+    //_mesh->recalculate();
+    //_drawTriangles = _mesh->getTriangles();
+    //_drawWireFrames = _mesh->getEdges();
 
 }

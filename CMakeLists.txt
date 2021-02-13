@@ -16,7 +16,7 @@ set_target_properties (CMakeTest PROPERTIES
                       )
   
 
-target_include_directories (CMakeTest PUBLIC "${PROJECT_SOURCE_DIR}/deps")
+# target_include_directories (CMakeTest PUBLIC "${PROJECT_SOURCE_DIR}/deps")
 
 include_directories (${PROJECT_SOURCE_DIR}/src)
 include_directories (${PROJECT_SOURCE_DIR}/deps)

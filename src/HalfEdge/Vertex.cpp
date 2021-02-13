@@ -1,8 +1,10 @@
 ﻿#include "Vertex.h"
 #include <glm/gtx/transform.hpp>
 
-DCEL::Vertex::Vertex(int id) : DCELBase(id),
-_halfEdge(nullptr) {
+DCEL::Vertex::Vertex() {
+}
+
+DCEL::Vertex::Vertex(int id) : DCELBase(id), _halfEdge(nullptr) {
     Position = NewPosition = glm::vec3(0);
     _quadratic = glm::identity<glm::mat4>();
     _isNew = false;

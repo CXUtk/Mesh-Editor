@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "RenderUtils.h"
 #include "Shaders/ShaderManager.h"
+#include <algorithm>
+
 class Renderer {
 public:
     Renderer();

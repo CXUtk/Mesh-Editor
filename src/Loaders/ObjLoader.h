@@ -9,9 +9,9 @@
 
 #include <glm/glm.hpp>
 
-#include "ObjTriangle.h"
+#include "Structures/VertexData.h"
 #include "Structures/HalfEdgeMesh.h"
-#include "Test/Mesh.h"
+#include "TriangleMesh.h"
 
 
 
@@ -22,10 +22,10 @@ public:
     std::vector<glm::vec3> Vertices;
     std::vector<glm::vec2> TexCoords;
     std::vector<glm::vec3> Normals;
-    std::vector<ObjTriangle> Triangles;
+    std::vector<TriangleFaceIndex> Triangles;
 
-    Mesh getMesh() const;
-    std::vector<DrawTriangle> GetDrawTriangles() const;
+    TriangleMesh GetMesh() const;
+    //std::vector<DrawTriangle> GetDrawTriangles() const;
 private:
     static constexpr int MAX_BUFFER = 100005;
     static char lineBuffer[MAX_BUFFER];
