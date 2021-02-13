@@ -5,6 +5,7 @@
 #include "Structures/HalfEdgeMesh.h"
 #include "Structures/Camera.h"
 #include "Input/InputControl.h"
+#include "UI/GUIManager.h"
 #include <memory>
 
 class Editor {
@@ -25,6 +26,7 @@ private:
     std::shared_ptr<Renderer> _renderer;
     std::shared_ptr<Camera> _camera;
     std::shared_ptr<InputContorl> _input;
+    std::shared_ptr<GUIManager> _guiManager;
 
     std::vector<Segment> _drawWireFrames;
     std::vector<DrawTriangle> _drawTriangles;

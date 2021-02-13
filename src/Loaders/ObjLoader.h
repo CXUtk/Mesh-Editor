@@ -25,6 +25,7 @@ public:
     std::vector<ObjTriangle> Triangles;
 
     Mesh getMesh() const;
+    std::vector<DrawTriangle> GetDrawTriangles() const;
 private:
     static constexpr int MAX_BUFFER = 100005;
     static char lineBuffer[MAX_BUFFER];

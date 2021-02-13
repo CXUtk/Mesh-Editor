@@ -8,7 +8,7 @@ public:
     Renderer();
     ~Renderer();
     void drawLines(const std::vector<Segment>& lines, const glm::vec3& color, float width);
-    void drawLightedTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color, const glm::vec3& lightDir);
+    void drawLightedTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color, const glm::vec3& lightDir, const glm::vec3& eyePos);
     void drawTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color);
     void begin(glm::mat4 projection, glm::mat4 view);
     void end();

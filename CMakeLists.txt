@@ -5,7 +5,7 @@ cmake_minimum_required (VERSION 3.8)
 
 project (CMakeTest VERSION 1.0)
 
-file (GLOB_RECURSE SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file (GLOB_RECURSE SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.h")
 
 # 将源代码添加到此项目的可执行文件。
 add_executable (CMakeTest ${SRC_FILES})
@@ -25,12 +25,14 @@ FIND_PACKAGE (OpenGL REQUIRED)
 
 add_subdirectory ("deps/glad")
 add_subdirectory ("deps/lodepng")
+add_subdirectory ("deps/imgui")
 
 
 #target_link_directories (CMakeTest PRIVATE ${PROJECT_SOURCE_DIR}/deps/GLFW/lib)
 target_link_libraries (CMakeTest PRIVATE "${PROJECT_SOURCE_DIR}/deps/GLFW/lib/glfw3.lib")
 target_link_libraries (CMakeTest PRIVATE glad)
 target_link_libraries (CMakeTest PRIVATE lodepng)
+target_link_libraries (CMakeTest PRIVATE imgui)
 
 add_custom_command(TARGET CMakeTest PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory

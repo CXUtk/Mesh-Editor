@@ -12,18 +12,17 @@ Editor& Editor::GetInstance() {
 
 
 Editor::~Editor() {
-    glfwDestroyWindow(_window);
-    glfwTerminate();
-}
 
+}
+ObjLoader loader;
 void Editor::init() {
     _isDragging = false;
     _curOrbitParameter = _oldOrbitParameter = glm::vec2(0);
 
 
     _renderer = std::make_shared<Renderer>();
-    ObjLoader loader;
-    loader.load("Resources/Scenes/teapot.obj");
+
+    loader.load("Resources/Scenes/bunny.obj");
     _mesh = std::make_shared<DCEL::HalfEdgeMesh>();
     _mesh->build(loader.getMesh());
     recalculateMesh();
@@ -37,6 +36,9 @@ void Editor::init() {
     float aspect = _width / (float)_height;
     _camera = std::shared_ptr<Camera>(new Camera(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), fov, aspect, 1.f, 100.f));
     _input = std::make_shared<InputContorl>(_window);
+
+    _guiManager = std::make_shared<GUIManager>(_window);
+    _guiManager->Init();
 
 }
 
@@ -149,7 +151,7 @@ void Editor::update() {
 
 
 
-    float r = 2.f;
+    float r = 5.f;
     float r2 = std::cos(_curOrbitParameter.y);
     _camera->SetEyePos(r * glm::vec3(-r2 * std::sin(_curOrbitParameter.x),
         -std::sin(_curOrbitParameter.y), r2 * std::cos(_curOrbitParameter.x)));
@@ -157,7 +159,6 @@ void Editor::update() {
 
 void Editor::draw() {
     auto tEdges = _mesh->getEdgesMarked();
-
     _renderer->begin(_camera->getProjectTransform(), _camera->getViewTransform());
     {
         glEnable(GL_DEPTH_TEST);
@@ -165,15 +166,15 @@ void Editor::draw() {
         glFrontFace(GL_CCW);
 
         glDepthFunc(GL_LESS);
-        _renderer->drawLightedTriangles(_drawTriangles, glm::vec3(0.8), glm::vec3(0, 0, 1));
+        _renderer->drawLightedTriangles(_drawTriangles, glm::vec3(0.8), glm::vec3(0, 0, 1), _camera->GetEyePos());
 
         glDepthFunc(GL_LEQUAL);
-        _renderer->drawLines(_drawWireFrames, glm::vec3(1), 1);
+        //_renderer->drawLines(_drawWireFrames, glm::vec3(1), 1);
 
 
         glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
-        _renderer->drawLines(tEdges, glm::vec3(1, 0, 0), 2);
+        //_renderer->drawLines(tEdges, glm::vec3(1, 0, 0), 2);
     }
     _renderer->end();
 
@@ -196,15 +197,16 @@ void Editor::draw() {
             std::vector<Segment> vs;
             vs.push_back(_mesh->getDrawEdge(info.edge));
             _renderer->drawLines(vs, glm::vec3(1, 1, 0), 2);
-            printf("%d\n", info.edge->id);
+            // printf("ID: %d, from: %f, to: %f\n", info.edge->id, info.edge->halfEdge->from->pos.x, info.edge->halfEdge->to->pos.x);
         }
 
         // 右键可以坍缩边
         if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown() && !info.isFace) {
             _mesh->collapseEdge(info.edge->halfEdge, (info.edge->halfEdge->from->pos + info.edge->halfEdge->to->pos) * 0.5f);
-
-            printf("# Faces: %d\n# Vertices: %d\n# Edges: %d\n", _mesh->getFaceCount(), _mesh->getVertexCount(), _mesh->getEdgeCount());
+            // printf("# Faces: %d\n# Vertices: %d\n# Edges: %d\n", _mesh->getFaceCount(), _mesh->getVertexCount(), _mesh->getEdgeCount());
             //_mesh->bulkCheck();
+            recalculateMesh();
+
         }
     }
 
@@ -213,6 +215,8 @@ void Editor::draw() {
 }
 
 void Editor::recalculateMesh() {
+    _mesh->recalculate();
     _drawTriangles = _mesh->getTriangles();
     _drawWireFrames = _mesh->getEdges();
+
 }

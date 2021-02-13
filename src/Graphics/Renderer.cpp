@@ -45,7 +45,7 @@ void Renderer::drawLines(const std::vector<Segment>& lines, const glm::vec3& col
     glBindVertexArray(0);
 }
 
-void Renderer::drawLightedTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color, const glm::vec3& lightDir) {
+void Renderer::drawLightedTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color, const glm::vec3& lightDir, const glm::vec3& eyePos) {
     auto model = glm::identity<glm::mat4>();
 
 
@@ -55,6 +55,11 @@ void Renderer::drawLightedTriangles(const std::vector<DrawTriangle>& triangles, 
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "model"), 1, false, glm::value_ptr(model));
     glUniform3f(glGetUniformLocation(shader->getID(), "uColor"), color.r, color.g, color.b);
     glUniform3f(glGetUniformLocation(shader->getID(), "uLightDir"), lightDir.x, lightDir.y, lightDir.z);
+    glUniform3f(glGetUniformLocation(shader->getID(), "uEyePos"), eyePos.x, eyePos.y, eyePos.z);
+
+    glUniform3f(glGetUniformLocation(shader->getID(), "ambientColor"), 0.2f, 0.2f, 0.2f);
+    glUniform3f(glGetUniformLocation(shader->getID(), "diffuseColor"), 0.7f, 0.7f, 0.7f);
+    glUniform3f(glGetUniformLocation(shader->getID(), "specularColor"), 0.8f, 0.8f, 0.8f);
 
 
     int sz = triangles.size();

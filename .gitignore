@@ -43,6 +43,7 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+out
 
 
 ## Ignore Visual Studio temporary files, build results, and

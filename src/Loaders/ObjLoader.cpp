@@ -61,6 +61,22 @@ Mesh ObjLoader::getMesh() const {
     return mesh;
 }
 
+std::vector<DrawTriangle> ObjLoader::GetDrawTriangles() const {
+    std::vector<DrawTriangle> triangles;
+    for (auto face : Triangles) {
+        DrawTriangle tri;
+        DrawVertex v1[3];
+        for (int i = 0; i < 3; i++) {
+            v1[i].pos = Vertices[face.v[i]];
+            v1[i].normal = Normals[face.v[i]];
+            tri.V[i] = v1[i];
+        }
+
+        triangles.push_back(tri);
+    }
+    return triangles;
+}
+
 
 
 void ObjLoader::process() {
