@@ -4,6 +4,7 @@
 namespace DCEL {
     DCEL::HalfEdgeMesh::HalfEdgeMesh() {
         _totF = _totE = _totHE = _totV = 0;
+        _accelStructure = AccelStructure::makeAccelStructure("BVH");
     }
 
     DCEL::HalfEdgeMesh::~HalfEdgeMesh() {
@@ -40,11 +41,13 @@ namespace DCEL {
                 if (it != edgeID.end()) {
                     it->second->Twin() = E[i];
                     E[i]->Twin() = it->second;
-                    newEdge(E[i], it->second);
+                    E[i]->Edge() = it->second->Edge();
+                    //newEdge(E[i], it->second);
                     edgeID.erase(it);
                 }
                 else {
                     edgeID[{fr, to}] = E[i];
+                    newEdge(E[i], nullptr);
                 }
             }
             constructFace(f, E[0], E[1], E[2]);
@@ -54,34 +57,50 @@ namespace DCEL {
             fprintf(stdout, "Warning: Boundry edge detected!\n");
         }
 
+        rebuildAccelStructure();
     }
 
     std::vector<DrawTriangle> HalfEdgeMesh::GetDrawTriangles() const {
         std::vector<DrawTriangle> drawTriangles;
-        for (auto& face : _faces) {
-            DrawTriangle triangle;
-            auto edge = face.HalfEdge();
-            auto normal = glm::cross(edge->Next()->From()->Position - edge->From()->Position,
-                edge->Next()->To()->Position - edge->From()->Position);
-            normal = glm::normalize(normal);
-
-            for (int i = 0; i < 3; i++) {
-                triangle.V[i].Position = edge->From()->Position;
-                triangle.V[i].Normal = normal;
-                edge = edge->Next();
-            }
-
-            drawTriangles.push_back(triangle);
-        }
+        for (auto& face : _faces) 
+            drawTriangles.push_back(face.GetDrawTriangle());
         return drawTriangles;
     }
 
-    std::vector<Segment> HalfEdgeMesh::GetDrawWireFrames() const {
-        std::vector<Segment> lines;
-        for (auto& edge : _edges) {
-            lines.push_back(Segment(edge.HalfEdge()->From()->Position, edge.HalfEdge()->To()->Position));
-        }
+    std::vector<DrawSegment> HalfEdgeMesh::GetDrawWireFrames() const {
+        std::vector<DrawSegment> lines;
+        for (auto& edge : _edges)
+            lines.push_back(edge.GetDrawSegemnt());
         return lines;
+    }
+
+    bool HalfEdgeMesh::RayIntersect(const Ray& ray, HitRecord& hit) const {
+        if (!_accelStructure->RayIntersect(ray, hit)) {
+            return false;
+        }
+
+        // Dected Whether the face or the edge is selected
+        const_PFace face = hit.face;
+        if (!face) return false;
+        const_PHalfEdge E = face->HalfEdge();
+        if (hit.barycentric.z < 0.1) {
+            hit.hitType = 1;
+            hit.edge = E->Edge();
+            return true;
+        }
+        E = E->Next();
+        if (hit.barycentric.x < 0.1) {
+            hit.hitType = 1;
+            hit.edge = E->Edge();
+            return true;
+        }
+        E = E->Next();
+        if (hit.barycentric.y < 0.1) {
+            hit.hitType = 1;
+            hit.edge = E->Edge();
+            return true;
+        }
+        return true;
     }
 
     PFace DCEL::HalfEdgeMesh::newFace() {
@@ -103,7 +122,8 @@ namespace DCEL {
         auto edge = &_edges.back();
         edge->HalfEdge() = a;
         a->Edge() = edge;
-        b->Edge() = edge;
+
+        if(b) b->Edge() = edge;
         return edge;
     }
     PVertex HalfEdgeMesh::newVertex(const glm::vec3& pos) {
@@ -125,5 +145,12 @@ namespace DCEL {
         e3->From()->AdjHalfEdge() = e3;
 
         e1->Face() = face, e2->Face() = face, e3->Face() = face;
+    }
+    void HalfEdgeMesh::rebuildAccelStructure() {
+        std::vector<const_PFace> faces;
+        for (auto& f : _faces) {
+            faces.push_back(&f);
+        }
+        _accelStructure->Build(faces);
     }
 }

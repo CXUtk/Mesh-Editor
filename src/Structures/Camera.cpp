@@ -12,7 +12,7 @@ glm::mat4 Camera::getProjectTransform() const {
     return glm::perspective(fov, aspect, zNear, zFar);
 }
 
-glm::vec3 Camera::getDir(float x, float y) {
+glm::vec3 Camera::GetDir(float x, float y) {
     x = x * 2 - 1;
     y = y * 2 - 1;
     auto H = zNear * tan(fov / 2);

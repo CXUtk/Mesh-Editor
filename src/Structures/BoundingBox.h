@@ -14,11 +14,11 @@ public:
     glm::vec3 getMinPos()const { return _minPos; }
     glm::vec3 getMaxPos()const { return _maxPos; }
 
-    bool rayIntersect(const Ray& ray, float& tMin, float& tMax) const;
+    bool RayIntersect(const Ray& ray, float& tMin, float& tMax) const;
 
-    bool intersects(const BoundingBox& box) const;
+    bool Intersects(const BoundingBox& box) const;
 
-    glm::vec3 getCenter() const { return (_minPos + _maxPos) / 2.f; }
+    glm::vec3 GetCenter() const { return (_minPos + _maxPos) / 2.f; }
 
     BoundingBox Union(const BoundingBox& box) const {
         glm::vec3 minn(std::min(_minPos.x, box._minPos.x), std::min(_minPos.y, box._minPos.y), std::min(_minPos.z, box._minPos.z));

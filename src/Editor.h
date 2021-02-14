@@ -33,11 +33,15 @@ private:
     std::shared_ptr<InputContorl> _input;
     std::shared_ptr<GUIManager> _guiManager;
 
-    std::vector<Segment> _drawWireFrames;
+    std::vector<DrawSegment> _drawWireFrames;
     std::vector<DrawTriangle> _drawTriangles;
 
     void update();
     void draw();
+
+
+    void drawMesh();
+    void drawSelectedElement();
 
 
     void recalculateMesh();

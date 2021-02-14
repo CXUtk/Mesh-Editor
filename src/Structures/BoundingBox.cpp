@@ -7,7 +7,7 @@ BoundingBox::BoundingBox(const glm::vec3& minPos, const glm::vec3& maxPos) : _mi
 BoundingBox::~BoundingBox() {
 }
 
-bool BoundingBox::rayIntersect(const Ray& ray, float& tMin, float& tMax) const {
+bool BoundingBox::RayIntersect(const Ray& ray, float& tMin, float& tMax) const {
     glm::vec3 start = ray.start, dir = ray.dir;
     for (int i = 0; i < 3; i++) {
         auto invD = 1.0f / dir[i];
@@ -21,7 +21,7 @@ bool BoundingBox::rayIntersect(const Ray& ray, float& tMin, float& tMax) const {
     return true;
 }
 
-bool BoundingBox::intersects(const BoundingBox& box) const {
+bool BoundingBox::Intersects(const BoundingBox& box) const {
     for (int i = 0; i < 3; i++)
         if (std::max(_minPos[i], box.getMinPos()[i]) > std::min(_maxPos[i], box.getMaxPos()[i])) return false;
     return true;

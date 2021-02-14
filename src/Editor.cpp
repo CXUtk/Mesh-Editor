@@ -8,8 +8,6 @@ Editor& Editor::GetInstance() {
     return game;
 }
 
-
-
 Editor::~Editor() {
 
 }
@@ -115,6 +113,13 @@ void Editor::update() {
 }
 
 void Editor::draw() {
+    drawMesh();
+    drawSelectedElement();
+    //  _renderer->drawLightedTriangles(tFaces, glm::vec3(1, 0, 0), glm::vec3(0, 0, 1));
+    _input->endInput();
+}
+
+void Editor::drawMesh() {
     _renderer->begin(_camera->GetCamera()->getProjectTransform(), _camera->GetCamera()->getViewTransform());
     {
         glEnable(GL_DEPTH_TEST);
@@ -134,41 +139,44 @@ void Editor::draw() {
         //_renderer->drawLines(tEdges, glm::vec3(1, 0, 0), 2);
     }
     _renderer->end();
+}
 
-    //  _renderer->drawLightedTriangles(tFaces, glm::vec3(1, 0, 0), glm::vec3(0, 0, 1));
+
+void Editor::drawSelectedElement() {
     auto pos = _input->getMousePosition();
     pos.x /= _width;
     pos.y /= _height;
     pos.y = 1 - pos.y;
 
-    //auto dir = _camera->getDir(pos.x, pos.y);
-    //auto ray = Ray(_camera->GetEyePos(), dir);
-    //IntersectionInfo info;
-    //if (_mesh->testHitTriangle(ray, info)) {
-    //    if (info.isFace) {
-    //        std::vector<DrawTriangle> vs;
-    //        vs.push_back(_mesh->getDrawFace(info.face));
-    //        _renderer->drawTriangles(vs, glm::vec3(1, 0, 0));
-    //    }
-    //    else {
-    //        std::vector<Segment> vs;
-    //        vs.push_back(_mesh->getDrawEdge(info.edge));
-    //        _renderer->drawLines(vs, glm::vec3(1, 1, 0), 2);
-    //        // printf("ID: %d, from: %f, to: %f\n", info.edge->id, info.edge->halfEdge->from->pos.x, info.edge->halfEdge->to->pos.x);
-    //    }
+    auto dir = _camera->GetCamera()->GetDir(pos.x, pos.y);
+    auto ray = Ray(_camera->GetCamera()->GetEyePos(), dir);
+    HitRecord hit;
+    if (_mesh->RayIntersect(ray, hit)) {
+        if (hit.hitType == 0) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            std::vector<DrawTriangle> vs;
+            vs.push_back(hit.face->GetDrawTriangle());
+            _renderer->drawTriangles(vs, glm::vec4(1, 0.5, 0, 0.5));
+            glDisable(GL_BLEND);
+        }
+        else {
+            std::vector<DrawSegment> vs;
+            vs.push_back(hit.edge->GetDrawSegemnt());
+            _renderer->drawLines(vs, glm::vec3(1, 1, 0), 2);
+            // printf("ID: %d, from: %f, to: %f\n", info.edge->id, info.edge->halfEdge->from->pos.x, info.edge->halfEdge->to->pos.x);
+        }
 
-    //    // 右键可以坍缩边
-    //    if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown() && !info.isFace) {
-    //        _mesh->collapseEdge(info.edge->halfEdge, (info.edge->halfEdge->from->pos + info.edge->halfEdge->to->pos) * 0.5f);
-    //        // printf("# Faces: %d\n# Vertices: %d\n# Edges: %d\n", _mesh->getFaceCount(), _mesh->getVertexCount(), _mesh->getEdgeCount());
-    //        //_mesh->bulkCheck();
-    //        recalculateMesh();
+        //// 右键可以坍缩边
+        //if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown() && !info.isFace) {
+        //    _mesh->collapseEdge(info.edge->halfEdge, (info.edge->halfEdge->from->pos + info.edge->halfEdge->to->pos) * 0.5f);
+        //    // printf("# Faces: %d\n# Vertices: %d\n# Edges: %d\n", _mesh->getFaceCount(), _mesh->getVertexCount(), _mesh->getEdgeCount());
+        //    //_mesh->bulkCheck();
+        //    recalculateMesh();
 
-    //    }
-    //}
+        //}
+    }
 
-
-    _input->endInput();
 }
 
 void Editor::recalculateMesh() {

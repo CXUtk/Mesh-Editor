@@ -20,14 +20,14 @@ Renderer::Renderer() {
 Renderer::~Renderer() {
 }
 
-void Renderer::drawLines(const std::vector<Segment>& lines, const glm::vec3& color, float width) {
+void Renderer::drawLines(const std::vector<DrawSegment>& lines, const glm::vec3& color, float width) {
     glLineWidth(width);
     auto model = glm::identity<glm::mat4>();
     auto shader = _shaderManager->getShaderData("line_draw");
     shader->apply();
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "projection"), 1, false, glm::value_ptr(_projectionMatrix * _viewMatrix));
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "model"), 1, false, glm::value_ptr(model));
-    glUniform3f(glGetUniformLocation(shader->getID(), "uColor"), color.r, color.g, color.b);
+    glUniform4f(glGetUniformLocation(shader->getID(), "uColor"), color.r, color.g, color.b, 1.0f);
 
 
     int sz = lines.size();
@@ -36,7 +36,7 @@ void Renderer::drawLines(const std::vector<Segment>& lines, const glm::vec3& col
     for (int i = 0; i < sz; i += BUFFER_SIZE) {
         glBindBuffer(GL_ARRAY_BUFFER, _vboLine);
         int count = std::min(sz, i + BUFFER_SIZE) - i;
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Segment) * count, lines.data() + i);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(DrawSegment) * count, lines.data() + i);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glDrawArrays(GL_LINES, 0, count * 2);
@@ -57,9 +57,9 @@ void Renderer::drawLightedTriangles(const std::vector<DrawTriangle>& triangles, 
     glUniform3f(glGetUniformLocation(shader->getID(), "uLightDir"), lightDir.x, lightDir.y, lightDir.z);
     glUniform3f(glGetUniformLocation(shader->getID(), "uEyePos"), eyePos.x, eyePos.y, eyePos.z);
 
-    glUniform3f(glGetUniformLocation(shader->getID(), "ambientColor"), 0.2f, 0.2f, 0.2f);
-    glUniform3f(glGetUniformLocation(shader->getID(), "diffuseColor"), 0.7f, 0.7f, 0.7f);
-    glUniform3f(glGetUniformLocation(shader->getID(), "specularColor"), 0.8f, 0.8f, 0.8f);
+    glUniform3f(glGetUniformLocation(shader->getID(), "ambientColor"), 0.3f, 0.3f, 0.3f);
+    glUniform3f(glGetUniformLocation(shader->getID(), "diffuseColor"), 0.5f, 0.5f, 0.5f);
+    glUniform3f(glGetUniformLocation(shader->getID(), "specularColor"), 0.7f, 0.7f, 0.7f);
 
 
     int sz = triangles.size();
@@ -77,7 +77,7 @@ void Renderer::drawLightedTriangles(const std::vector<DrawTriangle>& triangles, 
     glBindVertexArray(0);
 }
 
-void Renderer::drawTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color) {
+void Renderer::drawTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec4& color) {
     auto model = glm::identity<glm::mat4>();
 
 
@@ -85,7 +85,7 @@ void Renderer::drawTriangles(const std::vector<DrawTriangle>& triangles, const g
     shader->apply();
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "projection"), 1, false, glm::value_ptr(_projectionMatrix * _viewMatrix));
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "model"), 1, false, glm::value_ptr(model));
-    glUniform3f(glGetUniformLocation(shader->getID(), "uColor"), color.r, color.g, color.b);
+    glUniform4f(glGetUniformLocation(shader->getID(), "uColor"), color.r, color.g, color.b, color.w);
 
 
     int sz = triangles.size();
@@ -118,7 +118,7 @@ void Renderer::init_lineBuffer() {
 
     glBindVertexArray(_vaoLine);
     glBindBuffer(GL_ARRAY_BUFFER, _vboLine);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Segment) * BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(DrawSegment) * BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
     glEnableVertexAttribArray(0);

@@ -6,6 +6,7 @@
 #include <Structures/VertexData.h>
 #include <Core/Loaders/TriangleMesh.h>
 #include <Core/Graphics/RenderUtils.h>
+#include <Structures/AccelStructure/AccelStructure.h>
 
 #include <memory>
 #include <list>
@@ -28,7 +29,9 @@ namespace DCEL {
 
 
         std::vector<DrawTriangle> GetDrawTriangles() const;
-        std::vector<Segment> GetDrawWireFrames() const;
+        std::vector<DrawSegment> GetDrawWireFrames() const;
+
+        bool RayIntersect(const Ray& ray, HitRecord& hit) const;
 
     private:
         // Create new elements
@@ -40,6 +43,8 @@ namespace DCEL {
         // Construct the properties for a face by using 3 half edges
         void constructFace(PFace face, PHalfEdge e1, PHalfEdge e2, PHalfEdge e3);
 
+        void rebuildAccelStructure();
+
 
         std::list<Face> _faces;
         std::list<HalfEdge> _halfEdges;
@@ -47,5 +52,7 @@ namespace DCEL {
         std::list<Vertex> _vertices;
 
         int _totF, _totHE, _totE, _totV;
+
+        std::shared_ptr<AccelStructure> _accelStructure;
     };
 }
