@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "Graphics/Renderer.h"
 #include "HalfEdge/HalfEdgeMesh.h"
-#include "Structures/Camera.h"
+#include "Structures/CameraController.h"
 #include "Input/InputControl.h"
 #include "UI/GUIManager.h"
 #include <memory>
@@ -12,8 +12,13 @@ class Editor {
 public:
     static Editor& GetInstance();
     ~Editor();
-    void init();
-    void run();
+
+
+    void Init();
+    void Run();
+    std::shared_ptr<InputContorl> GetInputController() const { return _input; }
+    int GetHeight() const { return _height; }
+    int GetWidth() const { return _width; }
 
 private:
     // 构造函数private声明，确保单例
@@ -24,16 +29,12 @@ private:
 
     std::shared_ptr<DCEL::HalfEdgeMesh> _mesh;
     std::shared_ptr<Renderer> _renderer;
-    std::shared_ptr<Camera> _camera;
+    std::shared_ptr<CameraController> _camera;
     std::shared_ptr<InputContorl> _input;
     std::shared_ptr<GUIManager> _guiManager;
 
     std::vector<Segment> _drawWireFrames;
     std::vector<DrawTriangle> _drawTriangles;
-
-
-    bool _isDragging;
-    glm::vec2 _oldOrbitParameter, _curOrbitParameter;
 
     void update();
     void draw();

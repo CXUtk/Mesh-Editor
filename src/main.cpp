@@ -6,7 +6,8 @@
 int main(int argc, char** argv) {
     try {
         Editor& editor = Editor::GetInstance();
-        editor.run();
+        editor.Init();
+        editor.Run();
     }
     catch (std::exception e) {
         std::cout << e.what() << std::endl;

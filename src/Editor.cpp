@@ -14,9 +14,8 @@ Editor::~Editor() {
 
 }
 ObjLoader loader;
-void Editor::init() {
-    _isDragging = false;
-    _curOrbitParameter = _oldOrbitParameter = glm::vec2(0);
+void Editor::Init() {
+
 
 
     _renderer = std::make_shared<Renderer>();
@@ -26,17 +25,15 @@ void Editor::init() {
     _mesh->Build(loader.GetMesh());
     _drawTriangles = _mesh->GetDrawTriangles();
     _drawWireFrames = _mesh->GetDrawWireFrames();
-    recalculateMesh();
     //_mesh->upSample();
     //_mesh->upSample();
 
     //TestMeshes test;
     //_mesh->build(test._meshes[0]);
 
-    constexpr float fov = glm::pi<float>() / 2;
-    float aspect = _width / (float)_height;
-    _camera = std::shared_ptr<Camera>(new Camera(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), fov, aspect, 1.f, 100.f));
+    
     _input = std::make_shared<InputContorl>(_window);
+    _camera = std::make_shared<CameraController>(5.0f);
 
     _guiManager = std::make_shared<GUIManager>(_window);
     _guiManager->Init();
@@ -47,7 +44,7 @@ void Editor::init() {
 static double oldTime;
 static double oldTime2;
 static int cnt;
-void Editor::run() {
+void Editor::Run() {
     oldTime = oldTime2 = glfwGetTime();
     cnt = 0;
     while (!glfwWindowShouldClose(_window)) {
@@ -64,7 +61,6 @@ void Editor::run() {
         double curTime = glfwGetTime();
         oldTime = curTime;
         if (curTime - oldTime2 > 1.0) {
-            //printf("FPS: %d\n", cnt);
             cnt = 0;
             oldTime2 = curTime;
         }
@@ -102,38 +98,17 @@ Editor::Editor(int width, int height) :_width(width), _height(height) {
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-    init();
+
 
 }
 
 
-glm::vec2 startMousePos;
+
 
 void Editor::update() {
     _input->beginInput();
 
-    if (!_input->getOldMouseDown() && _input->getCurMouseDown()) {
-        _isDragging = true;
-        startMousePos = _input->getMousePosition();
-        startMousePos.y = _height - startMousePos.y;
-    }
-    if (_isDragging) {
-        auto pos = _input->getMousePosition();
-        pos.y = _height - pos.y;
-
-        glm::vec2 moved = pos - startMousePos;
-        moved *= 0.01f;
-
-        _curOrbitParameter = _oldOrbitParameter + moved;
-        auto pi = glm::pi<float>();
-        _curOrbitParameter.x = std::max(-pi, std::min(pi, _curOrbitParameter.x));
-        _curOrbitParameter.y = std::max(-pi / 2 + 0.001f, std::min(pi / 2 - 0.001f, _curOrbitParameter.y));
-
-    }
-    if (_input->getOldMouseDown() && !_input->getCurMouseDown()) {
-        _isDragging = false;
-        _oldOrbitParameter = _curOrbitParameter;
-    }
+    _camera->Run();
 
     //if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
     //    _mesh->upSample();
@@ -149,24 +124,17 @@ void Editor::update() {
     //    _mesh->downSample(300);
     //    recalculateMesh();
     //}
-
-
-
-    float r = 3.f;
-    float r2 = std::cos(_curOrbitParameter.y);
-    _camera->SetEyePos(r * glm::vec3(-r2 * std::sin(_curOrbitParameter.x),
-        -std::sin(_curOrbitParameter.y), r2 * std::cos(_curOrbitParameter.x)));
 }
 
 void Editor::draw() {
-    _renderer->begin(_camera->getProjectTransform(), _camera->getViewTransform());
+    _renderer->begin(_camera->GetCamera()->getProjectTransform(), _camera->GetCamera()->getViewTransform());
     {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glFrontFace(GL_CCW);
 
         glDepthFunc(GL_LESS);
-        _renderer->drawLightedTriangles(_drawTriangles, glm::vec3(0.8), glm::vec3(0, 0, 1), _camera->GetEyePos());
+        _renderer->drawLightedTriangles(_drawTriangles, glm::vec3(0.8), glm::vec3(0, 0, 1), _camera->GetCamera()->GetEyePos());
 
         glEnable(GL_POLYGON_OFFSET_LINE);
         glPolygonOffset(1.0f, 1.0f);
