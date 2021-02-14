@@ -1,7 +1,7 @@
 #include "CameraController.h"
 #include <Editor.h>
 
-CameraController::CameraController(float baseDistance) : _distance(baseDistance) {
+CameraController::CameraController(float baseDistance) : _distance(baseDistance), _factor(0.5) {
     _isDragging = false;
     _curOrbitParameter = _oldOrbitParameter = glm::vec2(0);
     _startMousePos = glm::vec2(0);
@@ -49,7 +49,8 @@ void CameraController::Run() {
 
     // ¹öÂÖ¿ØÖÆÀëÔ­µã¾àÀë
     if (input->getScrollValue() != 0) {
-        _distance += input->getScrollValue() * -0.08f;
-        _distance = std::max(0.5f, std::min(15.0f, _distance));
+        _factor += input->getScrollValue() * -0.01f;
+        _factor = std::max(0.f, std::min(1.0f, _factor));
+        _distance = _factor * _factor * 20 + 0.5f;
     }
 }

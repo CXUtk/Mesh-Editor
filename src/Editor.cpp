@@ -1,5 +1,5 @@
 ﻿#include "Editor.h"
-#include "Loaders/ObjLoader.h"
+#include <Core/Loaders/ObjLoader.h>
 #include <cstdio>
 #include <algorithm>
 
@@ -13,31 +13,21 @@ Editor& Editor::GetInstance() {
 Editor::~Editor() {
 
 }
-ObjLoader loader;
+
 void Editor::Init() {
-
-
-
     _renderer = std::make_shared<Renderer>();
-
-    loader.load("Resources/Scenes/gd32.obj");
+    ObjLoader loader;
+    loader.load("Resources/Scenes/teapot.obj");
     _mesh = std::make_shared<DCEL::HalfEdgeMesh>();
     _mesh->Build(loader.GetMesh());
     _drawTriangles = _mesh->GetDrawTriangles();
     _drawWireFrames = _mesh->GetDrawWireFrames();
-    //_mesh->upSample();
-    //_mesh->upSample();
-
-    //TestMeshes test;
-    //_mesh->build(test._meshes[0]);
-
     
     _input = std::make_shared<InputContorl>(_window);
     _camera = std::make_shared<CameraController>(5.0f);
 
     _guiManager = std::make_shared<GUIManager>(_window);
     _guiManager->Init();
-
 }
 
 
@@ -97,8 +87,6 @@ Editor::Editor(int width, int height) :_width(width), _height(height) {
     glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-
 
 }
 

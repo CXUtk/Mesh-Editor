@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
-#include "Camera.h"
+#include <Structures/Camera.h>
 #include <memory>
 
 class CameraController {
@@ -15,7 +15,7 @@ private:
     bool _isDragging;
     glm::vec2 _oldOrbitParameter, _curOrbitParameter;
     glm::vec2 _startMousePos;
-    float _distance;
+    float _distance, _factor;
 
     std::shared_ptr<Camera> _camera;
 };

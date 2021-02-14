@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "Graphics/Renderer.h"
-#include "HalfEdge/HalfEdgeMesh.h"
-#include "Structures/CameraController.h"
-#include "Input/InputControl.h"
-#include "UI/GUIManager.h"
+#include <Core/Graphics/Renderer.h>
+#include <HalfEdge/HalfEdgeMesh.h>
+#include <Core/CameraController.h>
+#include <Core/Input/InputControl.h>
+#include <Core/UI/GUIManager.h>
 #include <memory>
 
 class Editor {

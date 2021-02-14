@@ -4,8 +4,8 @@
 #include "Edge.h"
 #include "Vertex.h"
 #include <Structures/VertexData.h>
-#include <Loaders/TriangleMesh.h>
-#include <Graphics/RenderUtils.h>
+#include <Core/Loaders/TriangleMesh.h>
+#include <Core/Graphics/RenderUtils.h>
 
 #include <memory>
 #include <list>
