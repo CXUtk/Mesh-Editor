@@ -13,6 +13,9 @@ public:
 
     void Init();
 
+    void Begin();
+    void End();
+
 private:
     GLFWwindow* _window;
 };

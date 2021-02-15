@@ -25,7 +25,7 @@ void InputContorl::endInput() {
     _wasMouseDown = _isMouseDown;
     _wasMouseRightDown = _isMouseRightDown;
     _oldKeysDown = _curKeysDown;
-    scrollValue = 0;
+    scrollValue = 0.0;
 }
 
 int InputContorl::getScrollValue() const {

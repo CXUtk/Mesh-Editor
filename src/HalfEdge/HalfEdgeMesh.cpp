@@ -122,7 +122,6 @@ namespace DCEL {
         auto edge = &_edges.back();
         edge->HalfEdge() = a;
         a->Edge() = edge;
-
         if(b) b->Edge() = edge;
         return edge;
     }

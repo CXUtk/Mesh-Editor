@@ -43,9 +43,9 @@ void Editor::Run() {
         draw();
 
         glfwSwapBuffers(_window);
-        while (glfwGetTime() - oldTime < 1.0 / 60.0) {
+        do {
             glfwPollEvents();
-        }
+        } while (glfwGetTime() - oldTime < 1.0 / 60.0);
         double curTime = glfwGetTime();
         oldTime = curTime;
         if (curTime - oldTime2 > 1.0) {
@@ -86,12 +86,15 @@ Editor::Editor(int width, int height) :_width(width), _height(height) {
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
+
+    _selctedDCELObject = nullptr;
 }
 
 
 
 
 void Editor::update() {
+    _guiManager->Begin();
     _input->beginInput();
 
     _camera->Run();
@@ -116,7 +119,10 @@ void Editor::draw() {
     drawMesh();
     drawSelectedElement();
     //  _renderer->drawLightedTriangles(tFaces, glm::vec3(1, 0, 0), glm::vec3(0, 0, 1));
+
     _input->endInput();
+    _guiManager->End();
+    
 }
 
 void Editor::drawMesh() {
@@ -151,6 +157,8 @@ void Editor::drawSelectedElement() {
     auto dir = _camera->GetCamera()->GetDir(pos.x, pos.y);
     auto ray = Ray(_camera->GetCamera()->GetEyePos(), dir);
     HitRecord hit;
+
+    DCEL::const_DCELObject selected = nullptr;
     if (_mesh->RayIntersect(ray, hit)) {
         if (hit.hitType == 0) {
             glEnable(GL_BLEND);
@@ -159,14 +167,15 @@ void Editor::drawSelectedElement() {
             vs.push_back(hit.face->GetDrawTriangle());
             _renderer->drawTriangles(vs, glm::vec4(1, 0.5, 0, 0.5));
             glDisable(GL_BLEND);
+            selected = hit.face;
         }
         else {
             std::vector<DrawSegment> vs;
             vs.push_back(hit.edge->GetDrawSegemnt());
             _renderer->drawLines(vs, glm::vec3(1, 1, 0), 2);
+            selected = hit.edge;
             // printf("ID: %d, from: %f, to: %f\n", info.edge->id, info.edge->halfEdge->from->pos.x, info.edge->halfEdge->to->pos.x);
         }
-
         //// 右键可以坍缩边
         //if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown() && !info.isFace) {
         //    _mesh->collapseEdge(info.edge->halfEdge, (info.edge->halfEdge->from->pos + info.edge->halfEdge->to->pos) * 0.5f);
@@ -175,6 +184,15 @@ void Editor::drawSelectedElement() {
         //    recalculateMesh();
 
         //}
+    }
+    if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown()) {
+        _selctedDCELObject = selected;
+    }
+
+    if (_selctedDCELObject != nullptr) {
+        ImGui::Begin("Info");
+        ImGui::Text("This element has ID: %d\n", _selctedDCELObject->GetID());
+        ImGui::End();
     }
 
 }

@@ -29,4 +29,6 @@ namespace DCEL {
         int _id;
         bool _removed;
     };
+
+    using const_DCELObject = const DCELBase*;
 }

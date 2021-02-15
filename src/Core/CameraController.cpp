@@ -19,29 +19,45 @@ void CameraController::Run() {
 
 
     // Êó±ê¿ØÖÆÍÏ×§
-    if (!input->getOldMouseDown() && input->getCurMouseDown()) {
-        _isDragging = true;
-        _startMousePos = input->getMousePosition();
-        _startMousePos.y = height - _startMousePos.y;
+    //if (!input->getOldMouseDown() && input->getCurMouseDown()) {
+    //    _isDragging = true;
+    //    _startMousePos = input->getMousePosition();
+    //    _startMousePos.y = height - _startMousePos.y;
+    //}
+    //if (_isDragging) {
+    //    auto pos = input->getMousePosition();
+    //    pos.y = height - pos.y;
+
+    //    glm::vec2 moved = pos - _startMousePos;
+    //    moved *= 0.01f;
+
+    //    _curOrbitParameter = _oldOrbitParameter + 0.01f * glm::vec2(ImGui::GetIO().MouseDelta.x, ImGui::GetIO().MouseDelta.y);
+    //    auto pi = glm::pi<float>();
+    //    _curOrbitParameter.x = std::max(-pi, std::min(pi, _curOrbitParameter.x));
+    //    _curOrbitParameter.y = std::max(-pi / 2 + 0.001f, std::min(pi / 2 - 0.001f, _curOrbitParameter.y));
+    //}
+
+
+
+    if (!ImGui::GetIO().WantCaptureMouse) {
+        if (ImGui::GetIO().MouseClicked[0]) {
+            _isDragging = true;
+        }
+        if (_isDragging) {
+            _curOrbitParameter = _oldOrbitParameter + 0.01f * glm::vec2(ImGui::GetIO().MouseDelta.x, -ImGui::GetIO().MouseDelta.y);
+            auto pi = glm::pi<float>();
+            _curOrbitParameter.x = std::max(-pi, std::min(pi, _curOrbitParameter.x));
+            _curOrbitParameter.y = std::max(-pi / 2 + 0.001f, std::min(pi / 2 - 0.001f, _curOrbitParameter.y));
+            //if (input->getOldMouseDown() && !input->getCurMouseDown()) {
+            //    _isDragging = false;
+            //    _oldOrbitParameter = _curOrbitParameter;
+            //}
+            _oldOrbitParameter = _curOrbitParameter;
+        }
+        if (ImGui::GetIO().MouseReleased[0]) {
+            _isDragging = false;
+        }
     }
-    if (_isDragging) {
-        auto pos = input->getMousePosition();
-        pos.y = height - pos.y;
-
-        glm::vec2 moved = pos - _startMousePos;
-        moved *= 0.01f;
-
-        _curOrbitParameter = _oldOrbitParameter + moved;
-        auto pi = glm::pi<float>();
-        _curOrbitParameter.x = std::max(-pi, std::min(pi, _curOrbitParameter.x));
-        _curOrbitParameter.y = std::max(-pi / 2 + 0.001f, std::min(pi / 2 - 0.001f, _curOrbitParameter.y));
-
-    }
-    if (input->getOldMouseDown() && !input->getCurMouseDown()) {
-        _isDragging = false;
-        _oldOrbitParameter = _curOrbitParameter;
-    }
-
     float r2 = std::cos(_curOrbitParameter.y);
     _camera->SetEyePos(_distance * glm::vec3(-r2 * std::sin(_curOrbitParameter.x),
         -std::sin(_curOrbitParameter.y), r2 * std::cos(_curOrbitParameter.x)));
@@ -53,4 +69,6 @@ void CameraController::Run() {
         _factor = std::max(0.f, std::min(1.0f, _factor));
         _distance = _factor * _factor * 20 + 0.5f;
     }
+
+
 }
