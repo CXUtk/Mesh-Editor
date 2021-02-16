@@ -14,6 +14,8 @@ namespace DCEL {
         PHalfEdge HalfEdge() const { return _halfEdge; }
         PHalfEdge& HalfEdge() { return _halfEdge; }
 
+        void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const override;
+
         DrawSegment GetDrawSegemnt() const;
     private:
         PHalfEdge _halfEdge;

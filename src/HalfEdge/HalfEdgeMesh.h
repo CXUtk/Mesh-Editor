@@ -14,6 +14,10 @@
 
 
 namespace DCEL {
+
+    /// <summary>
+    /// Half edge data structure, assume the edges of all the faces are ordered counter-clockwise
+    /// </summary>
     class HalfEdgeMesh {
     public:
         HalfEdgeMesh();
@@ -32,6 +36,10 @@ namespace DCEL {
         std::vector<DrawSegment> GetDrawWireFrames() const;
 
         bool RayIntersect(const Ray& ray, HitRecord& hit) const;
+
+        void Recalculate();
+
+        void FlipEdge(const_PEdge edge);
 
     private:
         // Create new elements

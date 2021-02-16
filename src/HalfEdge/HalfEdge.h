@@ -28,6 +28,8 @@ namespace DCEL {
         PEdge Edge() const { return _edge; }
         PEdge& Edge() { return _edge; }
 
+        void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const override;
+
     private:
         PVertex _from, _to;
         PHalfEdge _twin, _next;

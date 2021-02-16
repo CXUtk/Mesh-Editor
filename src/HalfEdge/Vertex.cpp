@@ -16,3 +16,7 @@ DCEL::Vertex::~Vertex() {
 glm::vec3 DCEL::Vertex::GetNormal() const {
     return glm::vec3();
 }
+
+void DCEL::Vertex::DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const {
+    // renderer->DrawCircle();
+}

@@ -33,7 +33,7 @@ private:
     std::shared_ptr<InputContorl> _input;
     std::shared_ptr<GUIManager> _guiManager;
 
-    DCEL::const_DCELObject _selctedDCELObject;
+    DCEL::const_PEdge _selctedDCELObject;
 
     std::vector<DrawSegment> _drawWireFrames;
     std::vector<DrawTriangle> _drawTriangles;

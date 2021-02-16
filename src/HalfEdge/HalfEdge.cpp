@@ -11,4 +11,9 @@ DCEL::HalfEdge::HalfEdge(int id) :DCELBase(id) {
 }
 
 DCEL::HalfEdge::~HalfEdge() {
+
+}
+
+void DCEL::HalfEdge::DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const {
+    throw;
 }

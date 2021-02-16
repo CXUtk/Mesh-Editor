@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Core/Graphics/Renderer.h"
 namespace DCEL {
     class Vertex;
     class Face;
@@ -21,6 +22,9 @@ namespace DCEL {
         DCELBase() :_id(0), _removed(false) {}
         DCELBase(int id) :_id(id), _removed(false) {}
         virtual ~DCELBase() = 0 {}
+
+        // Draw this entity to the scene
+        virtual void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const = 0;
 
         int GetID() const { return _id; }
         bool ShouldRemove() const { return _removed; }

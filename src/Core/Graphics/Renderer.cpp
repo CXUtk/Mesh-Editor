@@ -20,7 +20,7 @@ Renderer::Renderer() {
 Renderer::~Renderer() {
 }
 
-void Renderer::drawLines(const std::vector<DrawSegment>& lines, const glm::vec3& color, float width) {
+void Renderer::DrawLines(const std::vector<DrawSegment>& lines, const glm::vec3& color, float width) {
     glLineWidth(width);
     auto model = glm::identity<glm::mat4>();
     auto shader = _shaderManager->getShaderData("line_draw");
@@ -45,7 +45,7 @@ void Renderer::drawLines(const std::vector<DrawSegment>& lines, const glm::vec3&
     glBindVertexArray(0);
 }
 
-void Renderer::drawLightedTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color, const glm::vec3& lightDir, const glm::vec3& eyePos) {
+void Renderer::DrawLightedTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec3& color, const glm::vec3& lightDir, const glm::vec3& eyePos) {
     auto model = glm::identity<glm::mat4>();
 
 
@@ -77,7 +77,7 @@ void Renderer::drawLightedTriangles(const std::vector<DrawTriangle>& triangles, 
     glBindVertexArray(0);
 }
 
-void Renderer::drawTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec4& color) {
+void Renderer::DrawTriangles(const std::vector<DrawTriangle>& triangles, const glm::vec4& color) {
     auto model = glm::identity<glm::mat4>();
 
 
@@ -103,12 +103,17 @@ void Renderer::drawTriangles(const std::vector<DrawTriangle>& triangles, const g
     glBindVertexArray(0);
 }
 
-void Renderer::begin(glm::mat4 projection, glm::mat4 view) {
+void Renderer::DrawCircles(const std::vector<DrawCircle>& circles, const glm::vec4& color) {
+    std::vector<DrawTriangle> trianglesQuads;
+
+}
+
+void Renderer::Begin(glm::mat4 projection, glm::mat4 view) {
     _projectionMatrix = projection;
     _viewMatrix = view;
 }
 
-void Renderer::end() {
+void Renderer::End() {
 }
 
 void Renderer::init_lineBuffer() {

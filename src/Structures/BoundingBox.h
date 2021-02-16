@@ -39,7 +39,8 @@ public:
     }
 
     int MaxExtent() const {
-        int t = _maxPos[0] - _minPos[0], d = 0;
+        float t = _maxPos[0] - _minPos[0];
+        int d = 0;
         if (_maxPos[1] - _minPos[1] > t) d = 1;
         if (_maxPos[2] - _minPos[2] > t) d = 2;
         return d;

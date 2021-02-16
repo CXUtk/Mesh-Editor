@@ -103,6 +103,32 @@ namespace DCEL {
         return true;
     }
 
+    void HalfEdgeMesh::Recalculate() {
+        rebuildAccelStructure();
+    }
+
+    void HalfEdgeMesh::FlipEdge(const_PEdge edge) {
+        PHalfEdge halfEdge = edge->HalfEdge();
+
+        // Stop if it is a boundary edge
+        if (!halfEdge->Twin()) return;
+        auto twin = halfEdge->Twin();
+
+        auto E1 = halfEdge->Next();
+        auto E2 = E1->Next();
+
+        auto E3 = twin->Next();
+        auto E4 = E3->Next();
+
+        halfEdge->From() = E3->To(), halfEdge->To() = E1->To();
+        twin->From() = E1->To(), twin->To() = E3->To();
+
+        auto F1 = halfEdge->Face();
+        auto F2 = twin->Face();
+        constructFace(F1, E2, E3, halfEdge);
+        constructFace(F2, E4, E1, twin);
+    }
+
     PFace DCEL::HalfEdgeMesh::newFace() {
         _totF++;
         _faces.push_back(Face(_totF));

@@ -19,6 +19,8 @@ namespace DCEL {
         BoundingBox GetBoundingBox() const;
         bool RayInterset(const Ray& ray, HitRecord* hit) const;
 
+        void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const override;
+
         DrawTriangle GetDrawTriangle() const;
 
     private:

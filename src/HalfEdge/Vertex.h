@@ -5,6 +5,8 @@
 namespace DCEL {
     class Vertex : public DCELBase {
     public:
+        glm::vec3 Position, NewPosition;
+
         Vertex();
         Vertex(int id);
 
@@ -21,7 +23,8 @@ namespace DCEL {
 
         glm::vec3 GetNormal() const;
 
-        glm::vec3 Position, NewPosition;
+        void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const override;
+
 
     private:
         PHalfEdge _halfEdge;

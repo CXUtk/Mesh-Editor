@@ -126,25 +126,25 @@ void Editor::draw() {
 }
 
 void Editor::drawMesh() {
-    _renderer->begin(_camera->GetCamera()->getProjectTransform(), _camera->GetCamera()->getViewTransform());
+    _renderer->Begin(_camera->GetCamera()->getProjectTransform(), _camera->GetCamera()->getViewTransform());
     {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glFrontFace(GL_CCW);
 
         glDepthFunc(GL_LESS);
-        _renderer->drawLightedTriangles(_drawTriangles, glm::vec3(0.8), glm::vec3(0, 0, 1), _camera->GetCamera()->GetEyePos());
+        _renderer->DrawLightedTriangles(_drawTriangles, glm::vec3(0.8f), glm::vec3(0, 0, 1), _camera->GetCamera()->GetEyePos());
 
         glEnable(GL_POLYGON_OFFSET_LINE);
         glPolygonOffset(1.0f, 1.0f);
-        _renderer->drawLines(_drawWireFrames, glm::vec3(1), 1);
+        _renderer->DrawLines(_drawWireFrames, glm::vec3(1), 1);
         glDisable(GL_POLYGON_OFFSET_LINE);
 
         glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
         //_renderer->drawLines(tEdges, glm::vec3(1, 0, 0), 2);
     }
-    _renderer->end();
+    _renderer->End();
 }
 
 
@@ -158,48 +158,41 @@ void Editor::drawSelectedElement() {
     auto ray = Ray(_camera->GetCamera()->GetEyePos(), dir);
     HitRecord hit;
 
-    DCEL::const_DCELObject selected = nullptr;
+    DCEL::const_PEdge selected = nullptr;
     if (_mesh->RayIntersect(ray, hit)) {
         if (hit.hitType == 0) {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            std::vector<DrawTriangle> vs;
-            vs.push_back(hit.face->GetDrawTriangle());
-            _renderer->drawTriangles(vs, glm::vec4(1, 0.5, 0, 0.5));
-            glDisable(GL_BLEND);
-            selected = hit.face;
+            hit.face->DrawOnScene(_renderer, glm::vec4(1.0f, 0.5f, 0.0f, 0.3f));
+            // selected = hit.face;
         }
         else {
-            std::vector<DrawSegment> vs;
-            vs.push_back(hit.edge->GetDrawSegemnt());
-            _renderer->drawLines(vs, glm::vec3(1, 1, 0), 2);
+            hit.edge->DrawOnScene(_renderer, glm::vec4(1.0f, 0.5f, 0.0f, 0.5f));
             selected = hit.edge;
             // printf("ID: %d, from: %f, to: %f\n", info.edge->id, info.edge->halfEdge->from->pos.x, info.edge->halfEdge->to->pos.x);
         }
-        //// 右键可以坍缩边
-        //if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown() && !info.isFace) {
-        //    _mesh->collapseEdge(info.edge->halfEdge, (info.edge->halfEdge->from->pos + info.edge->halfEdge->to->pos) * 0.5f);
-        //    // printf("# Faces: %d\n# Vertices: %d\n# Edges: %d\n", _mesh->getFaceCount(), _mesh->getVertexCount(), _mesh->getEdgeCount());
-        //    //_mesh->bulkCheck();
-        //    recalculateMesh();
 
-        //}
     }
     if (!_input->getOldMouseRightDown() && _input->getCurMouseRightDown()) {
         _selctedDCELObject = selected;
     }
 
     if (_selctedDCELObject != nullptr) {
+        _selctedDCELObject->DrawOnScene(_renderer, glm::vec4(1.0f, 0.2f, 0.0f, 0.8f));
+
         ImGui::Begin("Info");
         ImGui::Text("This element has ID: %d\n", _selctedDCELObject->GetID());
         ImGui::End();
+
+        // 右键可以坍缩边
+        if (!_input->getWasKeyDown('Z') && _input->getIsKeyDown('Z')) {
+            _mesh->FlipEdge(_selctedDCELObject);
+            recalculateMesh();
+        }
     }
 
 }
 
 void Editor::recalculateMesh() {
-    //_mesh->recalculate();
-    //_drawTriangles = _mesh->getTriangles();
-    //_drawWireFrames = _mesh->getEdges();
-
+    _mesh->Recalculate();
+    _drawTriangles = _mesh->GetDrawTriangles();
+    _drawWireFrames = _mesh->GetDrawWireFrames();
 }

@@ -51,6 +51,15 @@ bool DCEL::Face::RayInterset(const Ray& ray, HitRecord* hit) const {
     return true;
 }
 
+void DCEL::Face::DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    std::vector<DrawTriangle> vs;
+    vs.push_back(GetDrawTriangle());
+    renderer->DrawTriangles(vs, color);
+    glDisable(GL_BLEND);
+}
+
 DrawTriangle DCEL::Face::GetDrawTriangle() const {
     DrawTriangle triangle;
     auto edge = HalfEdge();
