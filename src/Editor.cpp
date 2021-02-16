@@ -187,6 +187,11 @@ void Editor::drawSelectedElement() {
             _mesh->FlipEdge(_selctedDCELObject);
             recalculateMesh();
         }
+
+        if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
+            _mesh->SplitEdge(_selctedDCELObject);
+            recalculateMesh();
+        }
     }
 
 }

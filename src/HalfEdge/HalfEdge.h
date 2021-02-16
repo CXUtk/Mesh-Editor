@@ -30,6 +30,8 @@ namespace DCEL {
 
         void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const override;
 
+        glm::vec3 GetCenter() const;
+
     private:
         PVertex _from, _to;
         PHalfEdge _twin, _next;

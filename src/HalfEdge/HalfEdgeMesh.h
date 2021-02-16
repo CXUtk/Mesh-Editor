@@ -40,6 +40,7 @@ namespace DCEL {
         void Recalculate();
 
         void FlipEdge(const_PEdge edge);
+        PVertex SplitEdge(const_PEdge edge);
 
     private:
         // Create new elements

@@ -129,6 +129,58 @@ namespace DCEL {
         constructFace(F2, E4, E1, twin);
     }
 
+    PVertex HalfEdgeMesh::SplitEdge(const_PEdge edge) {
+        auto halfEdge = edge->HalfEdge();
+        PVertex NV = newVertex(halfEdge->GetCenter());
+
+        auto F1 = halfEdge->Face();
+        if (!halfEdge->Twin()) {
+            auto E1 = halfEdge->Next();
+            auto E2 = E1->Next();
+
+            auto e1 = newHalfEdge(NV, halfEdge->To());
+            halfEdge->To() = NV;
+            auto e2 = newHalfEdge(NV, E1->To());
+            auto e3 = newHalfEdge(E1->To(), NV);
+            newEdge(e1, nullptr);
+            newEdge(e2, e3);
+            
+            constructFace(F1, halfEdge, e2, E2);
+            constructFace(newFace(), e1, E1, e3);
+            return NV;
+        }
+        auto twin = halfEdge->Twin();
+        auto F2 = twin->Face();
+
+        auto E1 = halfEdge->Next();
+        auto E2 = E1->Next();
+        auto E3 = twin->Next();
+        auto E4 = E3->Next();
+
+        halfEdge->To() = NV;
+        twin->From() = NV;
+
+        auto e1 = newHalfEdge(NV, E1->To());
+        auto e2 = newHalfEdge(E1->To(), NV);
+        auto NE1 = newEdge(e1, e2);
+        NE1->SetNew(true);
+
+        auto e3 = newHalfEdge(NV, E4->To());
+        auto e4 = newHalfEdge(E4->To(), NV);
+        newEdge(e3, e4);
+
+        auto e5 = newHalfEdge(NV, E3->To());
+        auto e6 = newHalfEdge(E3->To(), NV);
+        auto NE2 = newEdge(e5, e6);
+        NE2->SetNew(true);
+
+        constructFace(F1, halfEdge, e1, E2);
+        constructFace(F2, twin, E3, e6);
+        constructFace(newFace(), e4, e5, E4);
+        constructFace(newFace(), e3, E1, e2);
+        return NV;
+    }
+
     PFace DCEL::HalfEdgeMesh::newFace() {
         _totF++;
         _faces.push_back(Face(_totF));
@@ -149,6 +201,8 @@ namespace DCEL {
         edge->HalfEdge() = a;
         a->Edge() = edge;
         if(b) b->Edge() = edge;
+        a->Twin() = b;
+        if (b)b->Twin() = a;
         return edge;
     }
     PVertex HalfEdgeMesh::newVertex(const glm::vec3& pos) {
