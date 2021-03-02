@@ -41,6 +41,7 @@ namespace DCEL {
 
         void FlipEdge(const_PEdge edge);
         PVertex SplitEdge(const_PEdge edge);
+        PVertex CollapseEdge(PEdge edge);
 
     private:
         // Create new elements
@@ -51,8 +52,15 @@ namespace DCEL {
 
         // Construct the properties for a face by using 3 half edges
         void constructFace(PFace face, PHalfEdge e1, PHalfEdge e2, PHalfEdge e3);
+        void connectEdge(PHalfEdge A, PHalfEdge B);
+
+        void removeFace(PFace face);
+        void removeEdge(PEdge edge);
+        void removeHalfEdge(PHalfEdge halfedge);
+        void removeVertex(PVertex vertex);
 
         void rebuildAccelStructure();
+        void do_remove();
 
 
         std::list<Face> _faces;

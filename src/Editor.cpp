@@ -136,7 +136,7 @@ void Editor::drawMesh() {
         _renderer->DrawLightedTriangles(_drawTriangles, glm::vec3(0.8f), glm::vec3(0, 0, 1), _camera->GetCamera()->GetEyePos());
 
         glEnable(GL_POLYGON_OFFSET_LINE);
-        glPolygonOffset(1.0f, 1.0f);
+        glPolygonOffset(0.1f, 0.1f);
         _renderer->DrawLines(_drawWireFrames, glm::vec3(1), 1);
         glDisable(GL_POLYGON_OFFSET_LINE);
 
@@ -191,6 +191,12 @@ void Editor::drawSelectedElement() {
         if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
             _mesh->SplitEdge(_selctedDCELObject);
             recalculateMesh();
+        }
+
+        if (!_input->getWasKeyDown('C') && _input->getIsKeyDown('C')) {
+            _mesh->CollapseEdge(_selctedDCELObject->HalfEdge()->Edge());
+            recalculateMesh();
+            _selctedDCELObject = nullptr;
         }
     }
 

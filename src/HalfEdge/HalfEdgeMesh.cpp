@@ -104,6 +104,7 @@ namespace DCEL {
     }
 
     void HalfEdgeMesh::Recalculate() {
+        do_remove();
         rebuildAccelStructure();
     }
 
@@ -181,6 +182,41 @@ namespace DCEL {
         return NV;
     }
 
+    PVertex HalfEdgeMesh::CollapseEdge(PEdge edge) {
+        if (!edge->SafeToCollapse()) return nullptr;
+
+        auto hEdge = edge->HalfEdge();
+        auto twin = hEdge->Twin();
+        PVertex V = newVertex(hEdge->GetCenter());
+        auto fr = hEdge->From(), to = hEdge->To();
+
+        for (auto& hedge : fr->GetAdjHalfEdges()) {
+            if (hedge == hEdge || hedge == hEdge->Twin()) continue;
+            hedge->From() = V;
+            V->AdjHalfEdge() = hedge;
+            if (hedge->Twin())
+                hedge->Twin()->To() = V;
+        }
+        for (auto& hedge : to->GetAdjHalfEdges()) {
+            if (hedge == hEdge || hedge == hEdge->Twin()) continue;
+            hedge->From() = V;
+            V->AdjHalfEdge() = hedge;
+            if (hedge->Twin())
+                hedge->Twin()->To() = V;
+        }
+
+        connectEdge(hEdge->Next()->Twin(), hEdge->Next()->Next()->Twin());
+        connectEdge(twin->Next()->Twin(), twin->Next()->Next()->Twin());
+
+        removeFace(hEdge->Face());
+        removeFace(twin->Face());
+
+        edge->SetRemoveFlag(true);
+        fr->SetRemoveFlag(true);
+        to->SetRemoveFlag(true);
+        return V;
+    }
+
     PFace DCEL::HalfEdgeMesh::newFace() {
         _totF++;
         _faces.push_back(Face(_totF));
@@ -225,11 +261,61 @@ namespace DCEL {
 
         e1->Face() = face, e2->Face() = face, e3->Face() = face;
     }
+    
+    void HalfEdgeMesh::connectEdge(PHalfEdge A, PHalfEdge B) {
+        A->Edge()->SetRemoveFlag(true);
+        B->Edge()->SetRemoveFlag(true);
+        A->From()->AdjHalfEdge() = A;
+        B->From()->AdjHalfEdge() = B;
+
+        newEdge(A, B);
+    }
+
+    void HalfEdgeMesh::removeFace(PFace face) {
+        auto e = face->HalfEdge();
+        for (int i = 0; i < 3; i++) {
+            e->SetRemoveFlag(true);
+            e = e->Next();
+        }
+        face->SetRemoveFlag(true);
+    }
+
     void HalfEdgeMesh::rebuildAccelStructure() {
         std::vector<const_PFace> faces;
         for (auto& f : _faces) {
             faces.push_back(&f);
         }
         _accelStructure->Build(faces);
+    }
+    void HalfEdgeMesh::do_remove() {
+        for (auto it = _edges.begin(); it != _edges.end();) {
+            if (it->ShouldRemove()) {
+                it = _edges.erase(it);
+                continue;
+            }
+            it++;
+        }
+        for (auto it = _halfEdges.begin(); it != _halfEdges.end();) {
+            if (it->ShouldRemove()) {
+                it = _halfEdges.erase(it);
+                continue;
+            }
+            it++;
+        }
+        for (auto it = _vertices.begin(); it != _vertices.end();) {
+            if (it->ShouldRemove()) {
+                it = _vertices.erase(it);
+                continue;
+            }
+            it++;
+        }
+        for (auto it = _faces.begin(); it != _faces.end();) {
+            if (it->ShouldRemove()) {
+                it = _faces.erase(it);
+                continue;
+            }
+            it++;
+        }
+
     }
 }

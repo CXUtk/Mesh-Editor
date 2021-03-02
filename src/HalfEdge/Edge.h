@@ -21,6 +21,9 @@ namespace DCEL {
         bool IsNew() const { return _isNew; }
         void SetNew(bool v) { _isNew = v; }
 
+
+        bool SafeToCollapse() const;
+
     private:
         PHalfEdge _halfEdge;
         bool _isNew;

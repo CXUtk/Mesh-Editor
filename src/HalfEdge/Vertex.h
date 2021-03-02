@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "DCEL.h"
 #include <glm/glm.hpp>
+#include <vector>
 
 namespace DCEL {
     class Vertex : public DCELBase {
@@ -25,6 +26,10 @@ namespace DCEL {
 
         void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const override;
 
+        // Enumerate the adjacent edges
+        std::vector<PEdge> GetAdjEdges() const;
+        std::vector<PHalfEdge> GetAdjHalfEdges() const;
+        std::vector<PVertex> GetAdjVertices() const;
 
     private:
         PHalfEdge _halfEdge;
