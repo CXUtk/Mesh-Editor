@@ -16,7 +16,7 @@ namespace DCEL {
         PHalfEdge AdjHalfEdge() const { return _halfEdge; }
         PHalfEdge& AdjHalfEdge() { return _halfEdge; }
 
-        void MarkNew(bool value) { _isNew = value; }
+        void SetNew(bool value) { _isNew = value; }
         bool IsNew() const { return _isNew; }
 
         glm::mat4 GetQuadratic() const { return _quadratic; }

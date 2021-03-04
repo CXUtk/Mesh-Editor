@@ -28,6 +28,7 @@ namespace DCEL {
         PHalfEdge hedge = _halfEdge;
         do {
             edges.push_back(hedge->Edge());
+            if (!hedge->Twin()) break;
             hedge = hedge->Twin()->Next();
         } while (hedge != _halfEdge);
         return edges;
@@ -38,6 +39,7 @@ namespace DCEL {
         PHalfEdge hedge = _halfEdge;
         do {
             edges.push_back(hedge);
+            if (!hedge->Twin()) break;
             hedge = hedge->Twin()->Next();
         } while (hedge != _halfEdge);
         return edges;
@@ -47,6 +49,7 @@ namespace DCEL {
         PHalfEdge hedge = _halfEdge;
         do {
             vertices.push_back(hedge->To());
+            if (!hedge->Twin()) break;
             hedge = hedge->Twin()->Next();
         } while (hedge != _halfEdge);
         return vertices;

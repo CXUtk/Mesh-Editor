@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Core/Graphics/Renderer.h"
+#include <functional>
 namespace DCEL {
     class Vertex;
     class Face;
@@ -35,4 +36,5 @@ namespace DCEL {
     };
 
     using const_DCELObject = const DCELBase*;
+    using EdgeOpPositionFunction = std::function<glm::vec3(PHalfEdge)>;
 }

@@ -39,9 +39,14 @@ namespace DCEL {
 
         void Recalculate();
 
+        // Edge Operations 
         void FlipEdge(const_PEdge edge);
-        PVertex SplitEdge(const_PEdge edge);
-        PVertex CollapseEdge(PEdge edge);
+        PVertex SplitEdge(const_PEdge edge, EdgeOpPositionFunction posFunc);
+        PVertex CollapseEdge(PEdge edge, EdgeOpPositionFunction posFunc);
+
+
+        // Global Operations
+        void LoopSubdivision();
 
     private:
         // Create new elements

@@ -15,12 +15,12 @@ Editor::~Editor() {
 void Editor::Init() {
     _renderer = std::make_shared<Renderer>();
     ObjLoader loader;
-    loader.load("Resources/Scenes/teapot.obj");
+    loader.load("Resources/Scenes/gd32.obj");
     _mesh = std::make_shared<DCEL::HalfEdgeMesh>();
     _mesh->Build(loader.GetMesh());
     _drawTriangles = _mesh->GetDrawTriangles();
     _drawWireFrames = _mesh->GetDrawWireFrames();
-    
+
     _input = std::make_shared<InputContorl>(_window);
     _camera = std::make_shared<CameraController>(5.0f);
 
@@ -96,33 +96,21 @@ Editor::Editor(int width, int height) :_width(width), _height(height) {
 void Editor::update() {
     _guiManager->Begin();
     _input->beginInput();
+    ImGui::ShowDemoWindow();
 
     _camera->Run();
-
-    //if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
-    //    _mesh->upSample();
-    //    recalculateMesh();
-    //}
-
-    //if (!_input->getWasKeyDown('Z') && _input->getIsKeyDown('Z')) {
-    //    _mesh->reSample();
-    //    recalculateMesh();
-    //}
-
-    //if (!_input->getWasKeyDown('C') && _input->getIsKeyDown('C')) {
-    //    _mesh->downSample(300);
-    //    recalculateMesh();
-    //}
+    meshOperations();
 }
 
 void Editor::draw() {
     drawMesh();
     drawSelectedElement();
+
     //  _renderer->drawLightedTriangles(tFaces, glm::vec3(1, 0, 0), glm::vec3(0, 0, 1));
 
     _input->endInput();
     _guiManager->End();
-    
+
 }
 
 void Editor::drawMesh() {
@@ -136,7 +124,7 @@ void Editor::drawMesh() {
         _renderer->DrawLightedTriangles(_drawTriangles, glm::vec3(0.8f), glm::vec3(0, 0, 1), _camera->GetCamera()->GetEyePos());
 
         glEnable(GL_POLYGON_OFFSET_LINE);
-        glPolygonOffset(0.1f, 0.1f);
+        glPolygonOffset(0.f, 1.f);
         _renderer->DrawLines(_drawWireFrames, glm::vec3(1), 1);
         glDisable(GL_POLYGON_OFFSET_LINE);
 
@@ -178,28 +166,38 @@ void Editor::drawSelectedElement() {
     if (_selctedDCELObject != nullptr) {
         _selctedDCELObject->DrawOnScene(_renderer, glm::vec4(1.0f, 0.2f, 0.0f, 0.8f));
 
+        auto splitEequal = [](DCEL::PHalfEdge e) {
+            return e->GetCenter();
+        };
+
         ImGui::Begin("Info");
         ImGui::Text("This element has ID: %d\n", _selctedDCELObject->GetID());
-        ImGui::End();
-
-        // 右键可以坍缩边
-        if (!_input->getWasKeyDown('Z') && _input->getIsKeyDown('Z')) {
+        if (ImGui::Button("Flip Edge")) {
             _mesh->FlipEdge(_selctedDCELObject);
             recalculateMesh();
         }
-
-        if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
-            _mesh->SplitEdge(_selctedDCELObject);
+        ImGui::SameLine();
+        if (ImGui::Button("Split Edge")) {
+            _mesh->SplitEdge(_selctedDCELObject, splitEequal);
             recalculateMesh();
         }
-
-        if (!_input->getWasKeyDown('C') && _input->getIsKeyDown('C')) {
-            _mesh->CollapseEdge(_selctedDCELObject->HalfEdge()->Edge());
+        ImGui::SameLine();
+        if (ImGui::Button("Collapse Edge")) {
+            _mesh->CollapseEdge(_selctedDCELObject->HalfEdge()->Edge(), splitEequal);
             recalculateMesh();
             _selctedDCELObject = nullptr;
         }
+        ImGui::End();
     }
 
+}
+
+void Editor::meshOperations() {
+    if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
+        _mesh->LoopSubdivision();
+        _drawTriangles = _mesh->GetDrawTriangles();
+        _drawWireFrames = _mesh->GetDrawWireFrames();
+    }
 }
 
 void Editor::recalculateMesh() {

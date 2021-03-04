@@ -44,6 +44,7 @@ private:
 
     void drawMesh();
     void drawSelectedElement();
+    void meshOperations();
 
 
     void recalculateMesh();

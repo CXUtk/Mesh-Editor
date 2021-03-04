@@ -1,5 +1,6 @@
 ﻿#include "HalfEdgeMesh.h"
 #include <map>
+#include <glm/gtx/transform.hpp>
 
 namespace DCEL {
     DCEL::HalfEdgeMesh::HalfEdgeMesh() {
@@ -62,7 +63,7 @@ namespace DCEL {
 
     std::vector<DrawTriangle> HalfEdgeMesh::GetDrawTriangles() const {
         std::vector<DrawTriangle> drawTriangles;
-        for (auto& face : _faces) 
+        for (auto& face : _faces)
             drawTriangles.push_back(face.GetDrawTriangle());
         return drawTriangles;
     }
@@ -130,12 +131,15 @@ namespace DCEL {
         constructFace(F2, E4, E1, twin);
     }
 
-    PVertex HalfEdgeMesh::SplitEdge(const_PEdge edge) {
+    PVertex HalfEdgeMesh::SplitEdge(const_PEdge edge, EdgeOpPositionFunction posFunc) {
         auto halfEdge = edge->HalfEdge();
-        PVertex NV = newVertex(halfEdge->GetCenter());
 
+        PVertex NV = nullptr;
         auto F1 = halfEdge->Face();
         if (!halfEdge->Twin()) {
+            NV = newVertex(halfEdge->GetCenter());
+            NV->SetNew(true);
+
             auto E1 = halfEdge->Next();
             auto E2 = E1->Next();
 
@@ -145,11 +149,15 @@ namespace DCEL {
             auto e3 = newHalfEdge(E1->To(), NV);
             newEdge(e1, nullptr);
             newEdge(e2, e3);
-            
+            e3->Edge()->SetNew(true);
+
             constructFace(F1, halfEdge, e2, E2);
             constructFace(newFace(), e1, E1, e3);
             return NV;
         }
+        NV = newVertex(posFunc(halfEdge));
+        NV->SetNew(true);
+
         auto twin = halfEdge->Twin();
         auto F2 = twin->Face();
 
@@ -182,12 +190,12 @@ namespace DCEL {
         return NV;
     }
 
-    PVertex HalfEdgeMesh::CollapseEdge(PEdge edge) {
+    PVertex HalfEdgeMesh::CollapseEdge(PEdge edge, EdgeOpPositionFunction posFunc) {
         if (!edge->SafeToCollapse()) return nullptr;
 
         auto hEdge = edge->HalfEdge();
         auto twin = hEdge->Twin();
-        PVertex V = newVertex(hEdge->GetCenter());
+        PVertex V = newVertex(posFunc(hEdge));
         auto fr = hEdge->From(), to = hEdge->To();
 
         for (auto& hedge : fr->GetAdjHalfEdges()) {
@@ -217,6 +225,47 @@ namespace DCEL {
         return V;
     }
 
+    void HalfEdgeMesh::LoopSubdivision() {
+        for (auto& v : _vertices) {
+            auto neighbors = v.GetAdjVertices();
+            float t = (3.f / 8.f + std::cos(glm::two_pi<float>() / neighbors.size()) / 4);
+            float u = 3.f / 8.f + t * t;
+
+            glm::vec3 sum(0);
+            for (auto& nv : neighbors) {
+                sum += nv->Position;
+            }
+
+            v.NewPosition = u * v.Position + (1 - u) * sum / (float)neighbors.size();
+        }
+
+        auto loopSplitFunc = [](DCEL::PHalfEdge e) {
+            auto v1 = e->From(), v2 = e->To();
+            auto v3 = e->Next()->To();
+            auto v4 = e->Twin()->Next()->To();
+            return (v1->Position + v2->Position) * 0.375f + (v3->Position + v4->Position) * 0.125f;
+        };
+
+        auto endp = &(*_edges.rbegin());
+        for (auto& e : _edges) {
+            SplitEdge(&e, loopSplitFunc);
+            if (&e == endp) break;
+        }
+
+        for (auto& e : _edges) {
+            if (!e.ShouldRemove() && e.IsNew() && e.HalfEdge()->From()->IsNew() != e.HalfEdge()->To()->IsNew()) {
+                FlipEdge(&e);
+            }
+            e.SetNew(false);
+        }
+
+        for (auto& v : _vertices) {
+            v.Position = v.NewPosition;
+            v.SetNew(false);
+        }
+        Recalculate();
+    }
+
     PFace DCEL::HalfEdgeMesh::newFace() {
         _totF++;
         _faces.push_back(Face(_totF));
@@ -236,7 +285,7 @@ namespace DCEL {
         auto edge = &_edges.back();
         edge->HalfEdge() = a;
         a->Edge() = edge;
-        if(b) b->Edge() = edge;
+        if (b) b->Edge() = edge;
         a->Twin() = b;
         if (b)b->Twin() = a;
         return edge;
@@ -261,7 +310,7 @@ namespace DCEL {
 
         e1->Face() = face, e2->Face() = face, e3->Face() = face;
     }
-    
+
     void HalfEdgeMesh::connectEdge(PHalfEdge A, PHalfEdge B) {
         A->Edge()->SetRemoveFlag(true);
         B->Edge()->SetRemoveFlag(true);
