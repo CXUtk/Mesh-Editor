@@ -15,6 +15,30 @@
 
 namespace DCEL {
 
+    struct Node {
+        PEdge edge;
+        glm::vec3 optimalPos;
+        float cost;
+        Node() = default;
+        Node(PEdge e) :edge(e) {
+            glm::mat4 quadratic = e->HalfEdge()->From()->GetQuadratic();
+            quadratic += e->HalfEdge()->To()->GetQuadratic();
+
+            glm::mat3 A = quadratic;
+            glm::vec3 b = glm::vec3(-quadratic[0][3], -quadratic[1][3], -quadratic[2][3]);
+            optimalPos = glm::inverse(A) * b;
+
+            auto v = glm::vec4(optimalPos, 1);
+            cost = glm::dot(v, quadratic * v);
+        }
+        bool operator<(const Node& node) const {
+            if (cost == node.cost) {
+                return edge < node.edge;
+            }
+            return cost < node.cost;
+        }
+    };
+
     /// <summary>
     /// Half edge data structure, assume the edges of all the faces are ordered counter-clockwise
     /// </summary>
@@ -47,6 +71,10 @@ namespace DCEL {
 
         // Global Operations
         void LoopSubdivision();
+        void DownSample();
+
+        void ConstructQuadraticQueue();
+        const_PEdge NextCollapseEdge() const { return _nextCollapseEdge; }
 
     private:
         // Create new elements
@@ -56,8 +84,8 @@ namespace DCEL {
         PVertex newVertex(const glm::vec3& pos);
 
         // Construct the properties for a face by using 3 half edges
-        void constructFace(PFace face, PHalfEdge e1, PHalfEdge e2, PHalfEdge e3);
-        void connectEdge(PHalfEdge A, PHalfEdge B);
+        PFace constructFace(PFace face, PHalfEdge e1, PHalfEdge e2, PHalfEdge e3);
+        PEdge connectEdge(PHalfEdge A, PHalfEdge B);
 
         void removeFace(PFace face);
         void removeEdge(PEdge edge);
@@ -74,6 +102,7 @@ namespace DCEL {
         std::list<Vertex> _vertices;
 
         int _totF, _totHE, _totE, _totV;
+        PEdge _nextCollapseEdge;
 
         std::shared_ptr<AccelStructure> _accelStructure;
     };

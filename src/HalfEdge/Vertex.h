@@ -6,7 +6,6 @@
 namespace DCEL {
     class Vertex : public DCELBase {
     public:
-        glm::vec3 Position, NewPosition;
 
         Vertex();
         Vertex(int id);
@@ -21,6 +20,7 @@ namespace DCEL {
 
         glm::mat4 GetQuadratic() const { return _quadratic; }
         void SetQuadratic(const glm::mat4& mat) { _quadratic = mat; }
+        void ComputeQuadratic();
 
         glm::vec3 GetNormal() const;
 
@@ -35,5 +35,8 @@ namespace DCEL {
         PHalfEdge _halfEdge;
         glm::mat4 _quadratic;
         bool _isNew;
+
+    public:
+        glm::vec3 Position, NewPosition;
     };
 }

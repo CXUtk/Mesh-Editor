@@ -15,9 +15,13 @@ Editor::~Editor() {
 void Editor::Init() {
     _renderer = std::make_shared<Renderer>();
     ObjLoader loader;
-    loader.load("Resources/Scenes/gd32.obj");
+    loader.load("Resources/Scenes/spike.obj");
     _mesh = std::make_shared<DCEL::HalfEdgeMesh>();
+
     _mesh->Build(loader.GetMesh());
+    _mesh->ConstructQuadraticQueue();
+    _selctedDCELObject = _mesh->NextCollapseEdge();
+
     _drawTriangles = _mesh->GetDrawTriangles();
     _drawWireFrames = _mesh->GetDrawWireFrames();
 
@@ -195,6 +199,12 @@ void Editor::drawSelectedElement() {
 void Editor::meshOperations() {
     if (!_input->getWasKeyDown('X') && _input->getIsKeyDown('X')) {
         _mesh->LoopSubdivision();
+        _drawTriangles = _mesh->GetDrawTriangles();
+        _drawWireFrames = _mesh->GetDrawWireFrames();
+    }
+    if (!_input->getWasKeyDown('Z') && _input->getIsKeyDown('Z')) {
+        _mesh->DownSample();
+        _selctedDCELObject = _mesh->NextCollapseEdge();
         _drawTriangles = _mesh->GetDrawTriangles();
         _drawWireFrames = _mesh->GetDrawWireFrames();
     }

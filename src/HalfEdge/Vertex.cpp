@@ -2,6 +2,7 @@
 #include <glm/gtx/transform.hpp>
 #include <HalfEdge/HalfEdge.h>
 #include <HalfEdge/Edge.h>
+#include <HalfEdge/Face.h>
 namespace DCEL {
     DCEL::Vertex::Vertex() {
     }
@@ -15,8 +16,23 @@ namespace DCEL {
     DCEL::Vertex::~Vertex() {
     }
 
+    void Vertex::ComputeQuadratic() {
+        _quadratic = glm::zero<glm::mat4>();
+        for (auto& he : GetAdjHalfEdges()) {
+            auto N = he->Face()->GetNormal();
+            N = glm::normalize(N);
+            auto d = -glm::dot(N, he->Face()->HalfEdge()->From()->Position);
+            auto V = glm::vec4(N, d);
+            _quadratic += glm::outerProduct(V, V);
+        }
+    }
+
     glm::vec3 DCEL::Vertex::GetNormal() const {
-        return glm::vec3();
+        glm::vec3 normal = glm::vec3(0);
+        for (auto& he : GetAdjHalfEdges()) {
+            normal += he->Face()->GetNormal();
+        }
+        return glm::normalize(normal);
     }
 
     void DCEL::Vertex::DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const {

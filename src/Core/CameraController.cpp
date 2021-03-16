@@ -11,7 +11,7 @@ CameraController::CameraController(float baseDistance) : _distance(baseDistance)
     auto height = Editor::GetInstance().GetHeight();
     constexpr float fov = glm::pi<float>() / 2;
     float aspect = width / (float)height;
-    _camera = std::shared_ptr<Camera>(new Camera(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), fov, aspect, .5f, 100.f));
+    _camera = std::shared_ptr<Camera>(new Camera(glm::vec3(0, 0, 2), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), fov, aspect, .2f, 40.f));
 }
 
 void CameraController::Run() {

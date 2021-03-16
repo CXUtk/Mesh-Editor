@@ -60,6 +60,14 @@ void DCEL::Face::DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color
     glDisable(GL_BLEND);
 }
 
+
+glm::vec3 DCEL::Face::GetNormal() const {
+    auto edge = HalfEdge();
+    auto v1 = edge->To()->Position - edge->From()->Position;
+    auto v2 = edge->Next()->To()->Position - edge->From()->Position;
+    return glm::cross(v1, v2);
+}
+
 DrawTriangle DCEL::Face::GetDrawTriangle() const {
     DrawTriangle triangle;
     auto edge = HalfEdge();

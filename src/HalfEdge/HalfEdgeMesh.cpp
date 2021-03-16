@@ -1,5 +1,6 @@
 ﻿#include "HalfEdgeMesh.h"
 #include <map>
+#include <set>
 #include <glm/gtx/transform.hpp>
 
 namespace DCEL {
@@ -63,15 +64,19 @@ namespace DCEL {
 
     std::vector<DrawTriangle> HalfEdgeMesh::GetDrawTriangles() const {
         std::vector<DrawTriangle> drawTriangles;
-        for (auto& face : _faces)
+        for (auto& face : _faces) {
+            if (face.ShouldRemove()) continue;
             drawTriangles.push_back(face.GetDrawTriangle());
+        }
         return drawTriangles;
     }
 
     std::vector<DrawSegment> HalfEdgeMesh::GetDrawWireFrames() const {
         std::vector<DrawSegment> lines;
-        for (auto& edge : _edges)
+        for (auto& edge : _edges) {
+            if (edge.ShouldRemove()) continue;
             lines.push_back(edge.GetDrawSegemnt());
+        }
         return lines;
     }
 
@@ -266,6 +271,75 @@ namespace DCEL {
         Recalculate();
     }
 
+
+    std::set<Node> Q;
+
+    void HalfEdgeMesh::DownSample() {
+
+        int cnt = 0;
+        while (!Q.empty() && cnt < 1) {
+            auto node = *Q.begin();
+
+            if (node.edge->ShouldRemove() || !node.edge->SafeToCollapse()) {
+                Q.erase(Q.begin());
+                continue;
+            }
+
+            auto fr = node.edge->HalfEdge()->From();
+            auto to = node.edge->HalfEdge()->To();
+            auto opt = node.optimalPos;
+
+            for (auto& e : fr->GetAdjEdges()) {
+                auto it = Q.find(e);
+                if (it != Q.end()) {
+                    Q.erase(it);
+                }
+            }
+
+            for (auto& e : to->GetAdjEdges()) {
+                auto it = Q.find(e);
+                if (it != Q.end()) {
+                    Q.erase(it);
+                }
+            }
+
+            auto newV = CollapseEdge(node.edge, [=](DCEL::PHalfEdge e) {
+                return opt;
+                });
+            newV->ComputeQuadratic();
+            //for (const auto& a : Q) {
+            //    if (a.edge->ShouldRemove()) {
+            //        assert(false);
+            //    }
+            //}
+            //for (auto& v : newV->GetAdjVertices()) {
+            //    assert(!v->ShouldRemove());
+            //    v->ComputeQuadratic();
+            //}
+            for (auto& he : newV->GetAdjHalfEdges()) {
+                if (he->ShouldRemove()) continue;
+                Q.insert(he->Edge());
+            }
+            Q.erase(Q.begin());
+            cnt++;
+        }
+
+        // Recalculate();
+        while (!Q.empty() && Q.begin()->edge->ShouldRemove()) Q.erase(Q.begin());
+        _nextCollapseEdge = Q.begin()->edge;
+    }
+
+    void HalfEdgeMesh::ConstructQuadraticQueue() {
+        Q.clear();
+        for (auto& v : _vertices) {
+            v.ComputeQuadratic();
+        }
+        for (auto& e : _edges) {
+            Q.insert(Node(&e));
+        }
+        _nextCollapseEdge = Q.begin()->edge;
+    }
+
     PFace DCEL::HalfEdgeMesh::newFace() {
         _totF++;
         _faces.push_back(Face(_totF));
@@ -297,7 +371,7 @@ namespace DCEL {
         vert->Position = vert->NewPosition = pos;
         return vert;
     }
-    void HalfEdgeMesh::constructFace(PFace face, PHalfEdge e1, PHalfEdge e2, PHalfEdge e3) {
+    PFace HalfEdgeMesh::constructFace(PFace face, PHalfEdge e1, PHalfEdge e2, PHalfEdge e3) {
         face->HalfEdge() = e1;
         e1->Next() = e2;
         e1->From()->AdjHalfEdge() = e1;
@@ -309,15 +383,16 @@ namespace DCEL {
         e3->From()->AdjHalfEdge() = e3;
 
         e1->Face() = face, e2->Face() = face, e3->Face() = face;
+        return face;
     }
 
-    void HalfEdgeMesh::connectEdge(PHalfEdge A, PHalfEdge B) {
+    PEdge HalfEdgeMesh::connectEdge(PHalfEdge A, PHalfEdge B) {
         A->Edge()->SetRemoveFlag(true);
         B->Edge()->SetRemoveFlag(true);
         A->From()->AdjHalfEdge() = A;
         B->From()->AdjHalfEdge() = B;
 
-        newEdge(A, B);
+        return newEdge(A, B);
     }
 
     void HalfEdgeMesh::removeFace(PFace face) {
@@ -332,6 +407,7 @@ namespace DCEL {
     void HalfEdgeMesh::rebuildAccelStructure() {
         std::vector<const_PFace> faces;
         for (auto& f : _faces) {
+            if (f.ShouldRemove()) continue;
             faces.push_back(&f);
         }
         _accelStructure->Build(faces);

@@ -21,6 +21,8 @@ namespace DCEL {
 
         void DrawOnScene(std::shared_ptr<Renderer> renderer, glm::vec4 color) const override;
 
+        glm::vec3 GetNormal() const;
+
         DrawTriangle GetDrawTriangle() const;
 
     private:
