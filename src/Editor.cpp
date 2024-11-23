@@ -15,7 +15,7 @@ Editor::~Editor() {
 void Editor::Init() {
     _renderer = std::make_shared<Renderer>();
     ObjLoader loader;
-    loader.load("Resources/Scenes/spike.obj");
+    loader.load("Resources/Scenes/spot.obj");
     _mesh = std::make_shared<DCEL::HalfEdgeMesh>();
 
     _mesh->Build(loader.GetMesh());

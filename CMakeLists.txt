@@ -26,10 +26,10 @@ FIND_PACKAGE (OpenGL REQUIRED)
 add_subdirectory ("deps/glad")
 add_subdirectory ("deps/lodepng")
 add_subdirectory ("deps/imgui")
-
+add_subdirectory("external/glfw")
 
 #target_link_directories (CMakeTest PRIVATE ${PROJECT_SOURCE_DIR}/deps/GLFW/lib)
-target_link_libraries (MeshEditor PRIVATE "${PROJECT_SOURCE_DIR}/deps/GLFW/lib/glfw3.lib")
+target_link_libraries (MeshEditor PRIVATE glfw)
 target_link_libraries (MeshEditor PRIVATE glad)
 target_link_libraries (MeshEditor PRIVATE lodepng)
 target_link_libraries (MeshEditor PRIVATE imgui)
